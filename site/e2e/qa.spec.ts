@@ -23,16 +23,16 @@ const SCENES = [...new Set(WALK.map(([id]) => id))];
 const PHONES = [VP(360, 800), VP(375, 812), VP(390, 844)];
 
 /** the planted fixture: an element with a class nobody listed, overlapping a real heading */
-async function plant(page: Page) {
-  await page.evaluate(() => {
-    const h = document.querySelector<HTMLElement>("[data-scene-heading]:not(.sr-only)") ?? document.querySelector<HTMLElement>("h2, h1")!;
+async function plant(page: Page, id: string) {
+  await page.evaluate((i) => {
+    const h = document.querySelector<HTMLElement>(`#${i} [data-scene-heading]`)!;
     const r = h.getBoundingClientRect();
     const d = document.createElement("p");
     d.className = "zz-planted-overlap-9f3";
     d.textContent = "PLANTED OVERLAP FIXTURE";
     d.style.cssText = `position:fixed;left:${r.left + 4}px;top:${r.top + 4}px;margin:0;font:13px monospace;z-index:99;background:#000;color:#fff`;
     document.body.append(d);
-  });
+  }, id);
 }
 
 test("L22 fixture: a planted unlisted-class overlap is caught at 1280x720 with the fixed nav present", async ({ browser }) => {
@@ -40,7 +40,7 @@ test("L22 fixture: a planted unlisted-class overlap is caught at 1280x720 with t
   await openSite(page);
   await goScene(page, "sites", 0.5);
   expect(await collideAll(page)).toEqual([]);
-  await plant(page);
+  await plant(page, "sites");
   const found = await collideAll(page);
   expect(found.join("|")).toContain("PLANTED OVERLAP FIXTURE");
   await ctx.close();
@@ -220,8 +220,10 @@ test("L9/L12: every control is the element at its centre and a REAL pointer clic
         for (const e of root.querySelectorAll<HTMLElement>("button, input, select, summary, [role=radio], [role=spinbutton]")) {
           if (e.closest(".sr-only, [aria-hidden=true]") || (e as HTMLButtonElement).disabled) continue;
           const r = e.getBoundingClientRect();
-          if (r.width < 4 || r.height < 4 || r.bottom < 0 || r.top > innerHeight) continue;
-          out.push({ x: r.left + r.width / 2, y: r.top + r.height / 2, name: e.getAttribute("aria-label") || e.textContent?.trim().slice(0, 20) || e.tagName });
+          if (r.width < 4 || r.height < 4) continue;
+          const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+          if (cy < 0 || cy > innerHeight || cx < 0 || cx > innerWidth) continue;
+          out.push({ x: cx, y: cy, name: e.getAttribute("aria-label") || e.textContent?.trim().slice(0, 20) || e.tagName });
         }
         return out;
       }, id);
@@ -247,11 +249,11 @@ test("L15: reduced-motion figures are painted (non-trivial pixel counts) in ever
       const r = c.getBoundingClientRect();
       const d = g.getImageData(0, 0, c.width, c.height).data;
       let lit = 0;
-      for (let i = 0; i < d.length; i += 16) if (d[i + 3]! > 0 && d[i]! + d[i + 1]! + d[i + 2]! > 40) lit++;
+      for (let i = 0; i < d.length; i += 16) if (d[i + 3]! > 0 && d[i]! + d[i + 1]! + d[i + 2]! > 20) lit++;
       return { label: c.getAttribute("aria-label"), w: r.width, h: r.height, lit };
     }));
     expect(rep.length).toBeGreaterThan(10);
-    for (const r of rep) if (r.w < 40 || r.h < 40 || (r.lit < 30 && !/Unfold frame at 0$/.test(r.label ?? "") && !/strict|Demand|Capacity|At most/i.test(r.label ?? ""))) bad.push(`${vp.width}: ${r.label} ${r.w}x${r.h} lit ${r.lit}`);
+    for (const r of rep) if (r.w < 40 || r.h < 40 || (r.lit < 30)) bad.push(`${vp.width}: ${r.label} ${r.w}x${r.h} lit ${r.lit}`);
     await ctx.close();
   }
   expect(bad).toEqual([]);
@@ -287,6 +289,20 @@ test("L17: the inspector closes on scene change and the destination's controls p
   await page.waitForTimeout(500);
   await expect(page.locator(".sheet.inspector")).toHaveCount(0);
   await ctx.close();
+  // the phone MENU panel and the DESK CONTROLS sheet also close when the scene changes
+  const m = await at(browser, VP(390, 844));
+  await openSite(m.page);
+  await goScene(m.page, "desk", 0);
+  await m.page.waitForFunction(() => (window as any).__sco.desk()?.params, null, { timeout: 20000 });
+  await m.page.getByRole("button", { name: "CONTROLS" }).click();
+  await expect(m.page.locator(".sheet.desk-sheet")).toBeVisible();
+  await goScene(m.page, "evidence", 0.05);
+  await expect(m.page.locator(".sheet.desk-sheet")).toHaveCount(0);
+  await m.page.locator(".menu-pill").click();
+  await expect(m.page.locator(".menu-pill")).toHaveAttribute("aria-expanded", "true");
+  await goScene(m.page, "storms", 0.35);
+  await expect(m.page.locator(".menu-pill")).toHaveAttribute("aria-expanded", "false");
+  await m.ctx.close();
 });
 
 test("L18: units agree in every frame of the S04 encoding change (AREA = TONS to WIDTH = TONS)", async ({ browser }) => {

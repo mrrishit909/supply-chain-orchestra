@@ -117,6 +117,7 @@ export async function contrastFails(page: Page) {
       const r = rs.reduce((a, b) => new DOMRect(Math.min(a.left, b.left), Math.min(a.top, b.top), Math.max(a.right, b.right) - Math.min(a.left, b.left), Math.max(a.bottom, b.bottom) - Math.min(a.top, b.top)));
       if (r.bottom < 0 || r.top > vh || r.right < 0 || r.left > vw) continue;
       if (el.closest("details:not([open])") && !el.closest("summary")) continue; // collapsed content is not shown
+      if (el.closest("[aria-disabled=true], :disabled")) continue; // disabled controls are exempt (WCAG 1.4.3)
       // covered text (scrolled under a fixed bar, behind a card) is not read here; only what is on top is
       const cx = Math.min(vw - 1, Math.max(0, r.left + r.width / 2)), cy = Math.min(vh - 1, Math.max(0, r.top + r.height / 2));
       const mine = (x: number, y: number) => { const t = document.elementFromPoint(x, y); return !!t && (t === el || el.contains(t) || t.contains(el)); };
@@ -217,6 +218,17 @@ export function collideAll(page: Page) {
     for (const m of (window as any).__sco?.marks?.() ?? []) add(markOwner, new DOMRect(m.x, m.y, m.w, m.h), "canvas " + m.name);
     const out: string[] = [];
     const seen = new Set<string>();
+    // L13: text without an opaque backing over a painted disc is a collision (the disc is canvas, so the DOM boxes cannot see it)
+    const dbg = (window as any).__sco?.debug?.() ?? {};
+    if (dbg.scene && dbg.scene !== "journey" && dbg.scene !== "closing") {
+      for (const b of boxes) {
+        if (isMark(b.owner) || backed(b.owner) || b.owner.closest(".nav-bar, .nav-pill, .corner-btn, .site-foot, .sheet, .tooltip, .hit")) continue;
+        for (const d of (window as any).__sco.discs() as { cx: number; cy: number; R: number }[]) {
+          const nx = Math.max(b.r.l, Math.min(d.cx, b.r.r)), ny = Math.max(b.r.t, Math.min(d.cy, b.r.b));
+          if (Math.hypot(nx - d.cx, ny - d.cy) < d.R * 0.98) { const k = `disc|${b.name}`; if (!seen.has(k)) { seen.add(k); out.push(`over-disc: "${b.name}"`); } }
+        }
+      }
+    }
     for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) {
       const a = boxes[i]!, b = boxes[j]!;
       if (a.owner === b.owner || (isMark(a.owner) && isMark(b.owner))) continue;

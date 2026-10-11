@@ -7,7 +7,7 @@ import { useActiveScene } from "../scroll/hooks";
 import { NAV_ITEMS, SCENES, navActive, sceneIndex, type SceneDef } from "./scenes";
 import { useIntro } from "./useIntro";
 import { getStore } from "../data/loader";
-import { FACTS, META, MODEL, NETWORK, QUALITY, SOLUTIONS } from "../data/artifacts";
+import { FACTS, META, NETWORK, QUALITY, SOLUTIONS } from "../data/artifacts";
 import { startDirector } from "../scenes/director";
 import { JourneyLayer } from "../scenes/JourneyLayer";
 import { idle } from "../lib/math";
@@ -63,7 +63,7 @@ export function App() {
   useEffect(() => { resolveInitialHash(); }, []);
   useEffect(() => {
     if (intro.playing) return;
-    idle(() => { for (const a of [MODEL, QUALITY]) getStore(a as never).prefetch(); });
+    idle(() => { for (const a of [QUALITY]) getStore(a as never).prefetch(); });
   }, [intro.playing]);
   void active; void sceneIndex;
   const portal = document.getElementById("journey-portal");

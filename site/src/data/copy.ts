@@ -30,7 +30,7 @@ export function s00Source(p: Plan) { return sourceWord(p); }
 export const s01 = {
   statement: "Where to keep it, and how to move it.",
   cards: (f: Facts, p: Plan, net: Network) => [
-    { from: "FROM: THE SOLVER", when: statusWord(p), body: `${p.open.length} OF ${net.sites.length} CANDIDATE SITES OPEN. ${int(fact(f, "total_demand_tons"))} T A YEAR IN, THE SAME OUT. ${musd(p.objective ?? 0)} M USD A YEAR, ALL COSTS SYNTHETIC.`, tag: "SIMULATED" as const },
+    { from: "FROM: THE SOLVER", when: statusWord(p), body: `${p.open.length} OF ${net.sites.length} CANDIDATE SITES OPEN. ${int(fact(f, "total_demand_tons"))} T A YEAR IN, THE SAME OUT. ${musd(p.objective ?? 0)} M USD A YEAR, ALL COSTS SYNTHETIC. PRECOMPUTED · PYTHON HiGHS.`, tag: "SIMULATED" as const },
     { from: "FROM: THE CENSUS BUREAU", when: "2025", body: `THE CITIES ARE REAL: ${fact(f, "demand_nodes")} PLACES, ${fixed((net.demand_nodes.reduce((a, n) => a + n.pop2025, 0)) / 1e6, 1)} M PEOPLE. EVERYTHING ELSE IS INVENTED, AND SAYS SO.`, tag: "OBSERVED" as const },
   ],
 };

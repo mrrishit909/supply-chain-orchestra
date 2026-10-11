@@ -10,6 +10,7 @@ import { deskResult } from "../state/scenes";
 import { siteLabels } from "./labels";
 import { blend } from "./director";
 import { heroKeys, siteRank } from "./frames-journey";
+import { pan } from "./pan";
 
 registerFrame("evidence", ({ p, L, net, solutions, W, H }) => {
   const plan = scenarioPlan(net, solutions, "optimized");
@@ -28,7 +29,8 @@ registerFrame("closing", ({ now, p, L, net, solutions, W, H }) => {
   const plan = mine && mine.status !== "Infeasible" && mine.routesOut.length ? mine : scenarioPlan(net, solutions, "optimized");
   if (!plan) return null;
   const e = easeSymmetric(windowed(p, 0, 0.35));
-  const cam = camera(slotCam("sites:disc", L, 0.96, G1(L)), L.G0, e);
+  const panX = L.cls === "M" ? pan.value(now) * e : 0;
+  const cam = camera(slotCam("sites:disc", L, 0.96, G1(L)), { ...L.G0, cx: L.G0.cx + panX }, e);
   if (p >= 0.7 && echo.armed) { echo.at = now; echo.armed = false; }
   if (p < 0.68) { echo.armed = true; echo.at = -1; }
   const t = echo.at < 0 ? -1 : now - echo.at;
@@ -66,5 +68,5 @@ registerFrame("closing", ({ now, p, L, net, solutions, W, H }) => {
     ctx.strokeStyle = "#FFE6C8"; ctx.lineWidth = 1; ctx.strokeRect(pkgX - size / 2 + 0.5, cam.cy - size / 2 + 0.5, size - 1, size - 1);
     ctx.globalAlpha = 1;
   } : undefined;
-  return { discs: [disc], bloom: glow, glow, labels, busy, extra, glowKey: busy ? `t${Math.round(t / 50)}` : `rest|${e.toFixed(3)}|${plan.id}`, sig: `closing|${p.toFixed(4)}|${t < 0 ? "x" : Math.floor(t / 16)}|${plan.id}|${W}x${H}` };
+  return { discs: [disc], bloom: glow, glow, labels, busy, extra, glowKey: busy ? `t${Math.round(t / 50)}` : `rest|${e.toFixed(3)}|${plan.id}`, sig: `closing|${p.toFixed(4)}|${t < 0 ? "x" : Math.floor(t / 16)}|${plan.id}|${panX.toFixed(1)}|${W}x${H}` };
 });

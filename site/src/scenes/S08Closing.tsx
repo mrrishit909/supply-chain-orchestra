@@ -12,6 +12,7 @@ import { scenarioPlan } from "../model/plans";
 import { sourceWord, statusWord } from "../data/copy";
 import { musd } from "../model/format";
 import { LINKS } from "../config";
+import { DockPan } from "../components/DockPan";
 import { useViewport } from "./useViewport";
 import type { ArtifactSpec } from "../data/loader";
 import type { SceneDef } from "../app/scenes";
@@ -23,9 +24,9 @@ export function S08Closing({ def, onReplay }: { def: SceneDef; onReplay: () => v
   const motion = useMotion();
   const vp = useViewport();
   const mine = useSyncExternalStore(deskResult.subscribe, deskResult.get).plan;
-  const [ph, setPh] = useState({ caption: false, links: false });
-  useProgress(def.id, (p) => setPh((o) => (o.caption === p >= 0.74 && o.links === p >= 0.8 ? o : { caption: p >= 0.74, links: p >= 0.8 })));
-  const show = motion ? ph : { caption: true, links: true };
+  const [ph, setPh] = useState({ caption: false, links: false, pan: false });
+  useProgress(def.id, (p) => setPh((o) => (o.caption === p >= 0.74 && o.links === p >= 0.8 && o.pan === p >= 0.4 ? o : { caption: p >= 0.74, links: p >= 0.8, pan: p >= 0.4 })));
+  const show = motion ? ph : { caption: true, links: true, pan: false };
   const net = core?.net;
   const usable = mine && mine.status !== "Infeasible" && mine.routesOut.length ? mine : null;
   const plan = usable ?? (core && net ? scenarioPlan(net, core.sol, "optimized") : null);
@@ -34,6 +35,7 @@ export function S08Closing({ def, onReplay }: { def: SceneDef; onReplay: () => v
     <Track id={def.id} height={def.track} landing={def.landing} className={`scene scene-${def.id}`} label="Every product, again">
       <SceneErrors id={def.id} specs={CORE_SPECS as ArtifactSpec<unknown>[]} />
       <div className="close-scrim" aria-hidden="true" />
+      {motion ? <DockPan active={ph.pan} label="Pan the closing dock: drag along the dock line, or use the arrows" /> : null}
       {!motion && core && net && plan ? (
         <div className="close-still"><DockStill net={net} spec={{ A: plan, mix: 0 }} fit={1.05} label="The giant dock of the year's freight" /></div>
       ) : null}

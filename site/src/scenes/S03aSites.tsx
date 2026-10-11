@@ -86,7 +86,7 @@ export function S03aSites({ def }: { def: SceneDef }) {
                 </div>
               ) : plan && comp ? (
                 <div className="sites-ledger tnum">
-                  <p className="readout-line"><span className="status status--ok">{statusWord(plan)}</span> · {sourceWord(plan)}</p>
+                  <p className="readout-line"><span className={`status ${plan.relaxed ? "status--warn" : "status--ok"}`}>{statusWord(plan)}</span> · {sourceWord(plan)}</p>
                   <dl className="ledger-dl">
                     <div><dt>FIXED</dt><dd><Num v={comp.fixed_usd} /></dd></div>
                     <div><dt>INBOUND</dt><dd><Num v={comp.inbound_transport_usd} /></dd></div>
@@ -121,7 +121,7 @@ export function S03aSites({ def }: { def: SceneDef }) {
             const p = sweepPlan(net, sw, "exactly", k)!;
             return (
               <figure key={k} className="sites-still">
-                <DockStill net={net} spec={{ A: p, mix: 0 }} refTons={p.demandTons} label={`Exactly ${k} sites open`} className="sites-still__dock" />
+                <DockStill net={net} spec={{ A: p, mix: 0, needed: p.status === "Infeasible" ? 1 : 0 }} refTons={p.demandTons} label={`Exactly ${k} sites open`} className="sites-still__dock" />
                 <figcaption className="readout-line tnum">EXACTLY {k} SITES OPEN · {p.objective ? `${musd(p.objective)} M USD / YR` : "INFEASIBLE"} · {statusWord(p)} · {sourceWord(p)}</figcaption>
               </figure>
             );

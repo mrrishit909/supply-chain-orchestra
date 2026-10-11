@@ -42,7 +42,7 @@ registerFrame("unfold", ({ now, p, L, net, solutions, W, H }) => {
   const mapRoom = roomOf("unfold:map");
   const cam = slotCam("unfold:map", L, 0.95);
   const seam = seamHalf();
-  unfold.set({ t });
+  { const te = Math.round(t * 50) / 50; if (unfold.get().t !== te) unfold.set({ t: te }); }
   if (t < 0.002 || !mapRoom) {
     const b = blend(net, { A, B, mix: tr.mix, cam });
     const ol = tr.outline(now);

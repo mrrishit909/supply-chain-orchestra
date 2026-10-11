@@ -3,6 +3,7 @@ import { Track } from "../scroll/Track";
 import { HonestyChip, type Honesty } from "../components/HonestyChip";
 import { SceneErrors } from "../components/StateUI";
 import { useArtifact } from "../data/useArtifact";
+import { useNear } from "../scroll/useNear";
 import { CORE_SPECS, MODEL, useCore } from "./data";
 import { limits } from "../state/scenes";
 import { useMotion, useProgress } from "../scroll/hooks";
@@ -37,7 +38,8 @@ export function S07Evidence({ def }: { def: SceneDef }) {
   const core = useCore();
   const motion = useMotion();
   const [i, setI] = useState(0);
-  const [ms] = useArtifact(MODEL, false);
+  const near = useNear(def.id);
+  const [ms] = useArtifact(MODEL, near);
   const lim = useSyncExternalStore(limits.subscribe, limits.get);
   useProgress(def.id, (p) => setI((o) => stepState(o, p, T, 0.02)));
   if (!core) return (
@@ -77,7 +79,7 @@ export function S07Evidence({ def }: { def: SceneDef }) {
           const age = shown - k;
           if (motion && age < 0) return null;
           return (
-            <li key={k} className={`ev-pair ${motion ? "" : "is-flat"}`} data-age={Math.min(age, 4)} style={motion ? ({ ["--age" as string]: Math.min(age, 4) } as React.CSSProperties) : undefined} aria-current={age === 0 ? "true" : undefined} aria-hidden={motion && age > 0 ? true : undefined}>
+            <li key={k} className={`ev-pair ${motion ? "" : "is-flat"}`} data-age={Math.min(age, 4)} style={motion ? ({ ["--age" as string]: Math.min(age, 4) } as React.CSSProperties) : undefined} aria-current={age === 0 ? "true" : undefined} aria-hidden={motion && age > 0 ? true : undefined} {...(motion && age > 0 ? ({ inert: "" } as object) : {})}>
               <p className="ev-q">{r.q}</p>
               <div className="ev-a">
                 <p className="ev-a__text">{r.a}</p>

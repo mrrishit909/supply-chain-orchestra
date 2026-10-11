@@ -36,7 +36,7 @@ Object.assign(window, {
     state: () => ({ sites: sites.get(), brk: { ...brk.get(), live: !!brk.get().live }, storms: storms.get(), unfold: unfold.get(), limits: { step: limits.get().step, cap: limits.get().cap, check: limits.get().check }, inspector: inspector.get() }),
     solverState: () => { const s = getSolver(); return { status: s.status, loaded: s.loaded, version: s.version, error: s.error, solving: s.solving }; },
     failWorker: (v: boolean) => { testHooks.failWorker = v; },
-    marks: () => [] as { name: string; x: number; y: number; w: number; h: number }[],
+    marks: () => debug.labels.map((l) => ({ ...l })),
     labelBoxes: () => debug.labels.map((l) => ({ ...l })),
     cls: () => ({ js: currentClass(), css: getComputedStyle(document.documentElement).getPropertyValue("--vp-class").trim(), layout: layout(document.documentElement.clientWidth, innerHeight).cls, clientWidth: document.documentElement.clientWidth, innerWidth }),
   },

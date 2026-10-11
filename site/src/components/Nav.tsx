@@ -29,6 +29,7 @@ export function Nav({ items, active, onJump, introPlaying, onSkip, onReplay, spe
   const placed = useRef(false);
   const pillRef = useRef<HTMLButtonElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  useEffect(() => { setOpen(false); }, [active]);
   const activeLabel = items.find((i) => i.id === active)?.label ?? items[0]?.label ?? "MENU";
 
   // Slide the white block under the active item: transform only (translateX + scaleX of a 100px block).

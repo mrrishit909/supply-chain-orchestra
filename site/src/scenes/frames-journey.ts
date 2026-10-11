@@ -4,6 +4,7 @@ import { easeSmooth, easeSymmetric } from "../motion/ease";
 import { clamp } from "../lib/math";
 import { windowed } from "../motion/progress";
 import { camera, fallbackG1, roomOf, camOfRoom } from "./geometry";
+import { pan } from "./pan";
 import { scenarioPlan } from "../model/plans";
 import { siteLabels } from "./labels";
 import { blend } from "./director";
@@ -37,7 +38,8 @@ registerFrame("journey", ({ now, p, L, W, H, net, solutions }) => {
   const openOf = (f: number) => (playing ? easeSymmetric(clamp((t - start(f)) / 1000)) : 1);
   const e = easeSymmetric(windowed(p, 0, 0.4));
   const g1 = roomOf("journey:disc") ? camOfRoom(roomOf("journey:disc")!, 1) : fallbackG1(L);
-  const cam = camera(L.G0, g1, e);
+  const panX = L.cls === "M" ? pan.value(now) * (1 - e) : 0;
+  const cam = camera({ ...L.G0, cx: L.G0.cx + panX }, g1, e);
   const ordinal = new Map(openSites.map((f, i) => [f, i] as const));
   const disc: DiscSpec = {
     A: plan, mix: 0, cam,
@@ -92,7 +94,7 @@ registerFrame("journey", ({ now, p, L, W, H, net, solutions }) => {
     },
     busy: playing,
     glowKey: playing && t < T.glow + 400 ? `gl${Math.round(t / 40)}` : `rest|${e.toFixed(3)}`,
-    sig: `journey|${t.toFixed(0)}|${p.toFixed(4)}|${W}x${H}`,
+    sig: `journey|${t.toFixed(0)}|${p.toFixed(4)}|${panX.toFixed(1)}|${W}x${H}`,
   };
   return frame;
 });

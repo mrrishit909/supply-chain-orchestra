@@ -9,10 +9,11 @@ import { Sheet } from "../components/Sheet";
 import { Tooltip } from "../components/Tooltip";
 import { WordsBlock } from "../components/WordsBlock";
 import { useArtifact } from "../data/useArtifact";
+import { useNear } from "../scroll/useNear";
 import { CORE_SPECS, MODEL, useCore } from "./data";
 import { desk } from "../state/desk";
 import { deskResult, inspector, openPick } from "../state/scenes";
-import { cancelSolve, getSolver, requestDuals, requestSolve, retrySolver, startSolver, subscribeSolver } from "../state/solver";
+import { cancelSolve, getSolver, requestDuals, requestSolve, retrySolver, solveInFlight, startSolver, subscribeSolver } from "../state/solver";
 import { useActiveScene } from "../scroll/hooks";
 import { sceneIndex } from "../app/scenes";
 import { bindingFromPlan, type Plan } from "../model/plan";
@@ -34,7 +35,8 @@ const GROUPS: { id: string; label: string; kinds: string[] }[] = [
 export function Desk({ def }: { def: SceneDef }) {
   const core = useCore();
   const active = useActiveScene();
-  const [ms, mRetry] = useArtifact(MODEL, true);
+  const nearMe = useNear(def.id);
+  const [ms, mRetry] = useArtifact(MODEL, nearMe);
   const st = useSyncExternalStore(desk.subscribe, desk.get);
   const sv = useSyncExternalStore(subscribeSolver, getSolver);
   useSyncExternalStore(inspector.subscribe, inspector.get);
@@ -44,6 +46,7 @@ export function Desk({ def }: { def: SceneDef }) {
   const net = core?.net;
   const model = ms.status === "ready" ? ms.data : null;
   const inDesk = active === def.id || active === "closing";
+  useEffect(() => { setSheet(false); }, [active]);
   const deskReached = active ? sceneIndex(active) >= sceneIndex("limits") : false;
   const timer = useRef(0);
   const seqRef = useRef(0);
@@ -132,6 +135,16 @@ export function Desk({ def }: { def: SceneDef }) {
       deskSolve: () => st.params && solve(st.params),
       deskPlan: () => desk.get().plan,
       setTimeLimit: (t: number | undefined) => desk.set({ timeLimit: t }),
+      /** a real in-flight cancel: post a heavy solve, wait until the worker has it, cancel, report how long the cancel took */
+      cancelProbe: async () => {
+        const heavy = snapControls(model!, { ...st.params!, demand_scale: 1.35, fixed_cost_scale: 1.7, freight_scale: 1.4 });
+        solve(heavy);
+        for (let i = 0; i < 100 && !solveInFlight(); i++) await new Promise((r) => setTimeout(r, 20));
+        const t0 = performance.now();
+        const flying = solveInFlight();
+        cancel();
+        return { flying, ms: performance.now() - t0, solving: desk.get().solving, note: desk.get().note };
+      },
     });
   });
 
@@ -192,7 +205,7 @@ export function Desk({ def }: { def: SceneDef }) {
           <div key={g.id} className="desk-presets__group" role="group" aria-label={g.label}>
             <span className="desk-presets__name">{g.label}</span>
             {model!.presets.filter((p) => g.kinds.includes(p.kind)).map((p) => (
-              <button key={p.id} type="button" className={`chip-btn ${st.preset === p.id ? "is-on" : ""}`} aria-pressed={st.preset === p.id} onClick={() => pickPreset(p.id)}>{p.label.toUpperCase()}</button>
+              <button key={p.id} type="button" data-id={p.id} className={`chip-btn ${st.preset === p.id ? "is-on" : ""}`} aria-pressed={st.preset === p.id} onClick={() => pickPreset(p.id)}>{p.label.toUpperCase()}</button>
             ))}
           </div>
         ))}
@@ -212,6 +225,7 @@ export function Desk({ def }: { def: SceneDef }) {
           <p className="scene-kicker">THE DESK · EVERY CHANGE IS A REAL SOLVE ON A SYNTHETIC NETWORK</p>
           <h2 id={`${def.id}-title`} tabIndex={-1} data-scene-heading className="desk-title">{def.title}</h2>
           {status}
+          <div className="sites-tags"><HonestyChip tag="SIMULATED" detail={plan?.relaxed ? "RELAXED" : "ON A SYNTHETIC NETWORK"} /><HonestyChip tag="SYNTHETIC" detail="COSTS" /></div>
           {st.error ? (
             <div className="state-error" data-file="solve"><p className="state-line state-line--error">{st.error}</p><button type="button" className="btn-square" onClick={() => { if (sv.status === "error") retrySolver(); solve(st.params!); }}>RETRY</button></div>
           ) : null}
@@ -250,7 +264,6 @@ export function Desk({ def }: { def: SceneDef }) {
                     ))}
                   </ul>
                 )}
-                <div className="sites-tags"><HonestyChip tag={plan.source === "BROWSER" ? "SIMULATED" : "SIMULATED"} detail={plan.relaxed ? "RELAXED" : "ON A SYNTHETIC NETWORK"} /><HonestyChip tag="SYNTHETIC" detail="COSTS" /></div>
               </div>
             </div>
           ) : null}

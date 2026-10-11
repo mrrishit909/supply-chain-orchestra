@@ -3,7 +3,7 @@ import { WordReveal } from "./WordReveal";
 
 /** The relaxation sentences (DR-8): they arrive word by word (60 ms stagger) whenever the record changes. */
 export function WordsBlock({ words, k }: { words: string[]; k: string }) {
-  const play = useMemo(() => (Date.now() % 1e9) + 1 + k.length * 0, [k]);
+  const play = useMemo(() => ([...k].reduce((a, c) => (Math.imul(a, 31) + c.charCodeAt(0)) | 0, 7) >>> 0) + 1, [k]);
   return (
     <div className="words" aria-live="polite">
       {words.map((w, i) => (

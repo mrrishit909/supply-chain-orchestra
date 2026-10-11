@@ -113,7 +113,7 @@ let glowSig = "";
 let labelHost: HTMLElement | null = null;
 const unions = new Map<string, Union>();
 const placedCache = new WeakMap<Union, WeakMap<Plan, Placed>>();
-let planIds = new WeakMap<Plan, number>();
+const planIds = new WeakMap<Plan, number>();
 let planSeq = 0;
 const pid = (p: Plan) => { let i = planIds.get(p); if (!i) { i = ++planSeq; planIds.set(p, i); } return i; };
 
@@ -298,7 +298,7 @@ function glowTmp(w: number, h: number) {
 }
 
 // ------------------------------------------------------------------ the loop
-let lastFrameAt = 0, frames60 = 0;
+let lastFrameAt = 0;
 function tick(now: number) {
   if (!main || !ctx || !L) return;
   if (document.documentElement.clientWidth !== W || innerHeight !== H) resize();
@@ -327,7 +327,6 @@ function tick(now: number) {
   const sig = `${frame.sig}|${W}x${H}|${frame.opacity ?? 1}`;
   if (sig === lastSig && !frame.busy) return;
   lastSig = sig;
-  frames60++;
   debug.frames++;
   debug.sig = frame.sig;
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);

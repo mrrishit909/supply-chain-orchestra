@@ -16,6 +16,7 @@ import { windowed } from "../motion/progress";
 import { currentClass } from "../graphics/canvas";
 import { useMotion, useProgress } from "../scroll/hooks";
 import { Slot } from "./Slot";
+import { DockPan } from "../components/DockPan";
 import { layout } from "./geometry";
 
 const motionOn = () => document.documentElement.dataset.motion !== "off";
@@ -27,6 +28,7 @@ export function JourneyLayer({ introPlaying }: { introPlaying: boolean }) {
   const [fs] = useArtifact(FACTS);
   const motion = useMotion();
   const [cards, setCards] = useState(0);
+  const [atTop, setAtTop] = useState(true);
   const plan = ns.status === "ready" && ss.status === "ready" ? scenarioPlan(ns.data, ss.data, "optimized") : null;
   useProgress("journey", (p) => {
     document.querySelector<HTMLElement>(".hero-scrim")?.style.setProperty("--scrim", String(1 - windowed(p, 0, 0.4)));
@@ -42,6 +44,7 @@ export function JourneyLayer({ introPlaying }: { introPlaying: boolean }) {
     document.querySelector<HTMLElement>(".journey-foot")?.style.setProperty("opacity", String(1 - windowed(p, 0.02, 0.1)));
     if (motionOn()) document.querySelector<HTMLElement>(".s01-statement")?.style.setProperty("opacity", String(windowed(p, 0.3, 0.36)));
     setCards((o) => (p >= 0.6 ? o || Date.now() : 0));
+    setAtTop((o) => (o === p < 0.1 ? o : p < 0.1));
   });
   const still = document.getElementById("journey-still");
   return (
@@ -62,6 +65,7 @@ export function JourneyLayer({ introPlaying }: { introPlaying: boolean }) {
           </div>
         ) : null}
       </div>
+      {motion ? <DockPan active={atTop} label="Pan the dock: drag along the dock line, or use the arrows" /> : null}
       <div className={`journey-foot ${introPlaying ? "is-waiting" : ""}`}>
         <div className="journey-foot__chips">
           <HonestyChip tag="SIMULATED" /><HonestyChip tag="SYNTHETIC" detail="NETWORK" /><HonestyChip tag="OBSERVED" detail="PLACES" />

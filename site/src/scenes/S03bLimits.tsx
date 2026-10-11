@@ -4,6 +4,7 @@ import { HonestyChip } from "../components/HonestyChip";
 import { Radio } from "../components/Radio";
 import { ArtifactStatus, SceneErrors } from "../components/StateUI";
 import { useArtifact } from "../data/useArtifact";
+import { useNear } from "../scroll/useNear";
 import { CORE_SPECS, MODEL, useCore } from "./data";
 import { Slot } from "./Slot";
 import { DockHit } from "../components/DockHit";
@@ -27,7 +28,8 @@ import type { SceneDef } from "../app/scenes";
 export function S03bLimits({ def }: { def: SceneDef }) {
   const core = useCore();
   const active = useActiveScene();
-  const [ms, mRetry] = useArtifact(MODEL, true);
+  const nearMe = useNear(def.id);
+  const [ms, mRetry] = useArtifact(MODEL, nearMe);
   const st = useSyncExternalStore(limits.subscribe, limits.get);
   const sv = useSyncExternalStore(subscribeSolver, getSolver);
   const motion = useMotion();
@@ -160,7 +162,7 @@ function PriceLine({ core }: { core: NonNullable<ReturnType<typeof useCore>> }) 
   return (
     <span>
       WHAT A TON COSTS WHERE · CHEAPEST: {nm(lo.i)} <b className="derived tnum">{fixed(lo.v, 0)}</b> · DEAREST: {nm(hi.i)} <b className="derived tnum">{fixed(hi.v, 0)}</b> USD / T (PACKAGED)
-      <span className="price-legend" aria-label="Demand price steps, dim to bright">{PRICE_STEPS.map((s, k) => <i key={k} style={{ opacity: s }} />)}</span>
+      <span className="price-legend" role="img" aria-label="Demand price steps, dim to bright">{PRICE_STEPS.map((s, k) => <i key={k} style={{ opacity: s }} />)}</span>
     </span>
   );
 }

@@ -183,6 +183,20 @@ export function drawDock(ctx: Ctx, P: Paint): number {
     painted++;
   }
   ctx.globalAlpha = 1;
+  // the UNSERVED column: nothing arrives above the dock, a 1 px dashed orange-red edge (3/3) marks that empty area
+  const F = u.F;
+  if (P.colTons[F]! > 0) {
+    const x0 = P.colX0[F]!, x1 = P.colX1[F]!;
+    ctx.save();
+    ctx.globalAlpha = (A ? 1 : 1) * Math.min(1, P.open(n - 1));
+    ctx.strokeStyle = "rgba(255,76,37,0.9)"; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(cx + x0 * R, cy - seam);
+    const steps = 24;
+    for (let i = 0; i <= steps; i++) { const x = x0 + ((x1 - x0) * i) / steps; ctx.lineTo(cx + x * R, cy - Math.max(seam, chord(x) * R)); }
+    ctx.stroke();
+    ctx.restore();
+  }
   // dock squares
   const sa = P.squareAlpha ?? 1;
   if (sa > 0) {

@@ -95,6 +95,7 @@ function pump() {
 export function startSolver() { if (state.status === "idle") create(); }
 export function retrySolver() { if (state.status === "error") { worker = null; create(); } }
 export const solveInFlight = () => !!inflight;
+export const workerAlive = () => !!worker;
 
 /** CANCEL: terminate the worker, keep the caller's last result, start a fresh worker. Not a failure. */
 export function cancelSolve() {
@@ -112,6 +113,11 @@ export function cancelSolve() {
 
 /** Latest-wins solve of `params` (LP text built here, hashed here; the worker only runs HiGHS). */
 export async function requestSolve(net: Network, model: Model, params: Params, done: (r: SolveOut) => void, timeLimit?: number) {
+  if (state.status === "disabled" || (state.status === "error" && !worker)) {
+    // no worker will ever answer: fail at once so the caller shows its fallback or its error with RETRY (never a solve that hangs)
+    done({ error: state.error ?? "BROWSER SOLVER UNAVAILABLE" });
+    return;
+  }
   const text = buildLp(net, model, params);
   const sha = await sha256(text);
   pending = { id: 0, kind: "solve", text, sha, net, model, params, done: done as Pending["done"], timeLimit };
@@ -122,7 +128,9 @@ export async function requestSolve(net: Network, model: Model, params: Params, d
 export async function requestDuals(net: Network, model: Model, params: Params, open: number[], done: (d: Record<string, number> | null) => void) {
   const text = buildLp(net, model, { ...params, fixed_open: open }, { continuous: true });
   // duals share the worker but not the solve queue slot: wait for the in-flight solve, then run
+  let tries = 0;
   const go = () => {
+    if (state.status === "error" || state.status === "disabled" || ++tries > 400) { done(null); return; }
     if (state.status !== "ready" || inflight) { setTimeout(go, 60); return; }
     pending = { id: 0, kind: "duals", text, sha: "", net, model, params, done: (r) => done("duals" in r ? r.duals : null) };
     pump();

@@ -78,7 +78,7 @@ export function S05Break({ def }: { def: SceneDef }) {
               onChange={(v) => { liveMsg.set(""); brk.set({ mode: v, live: null }); }} />
             {st.case === "storm" ? <Radio label="HITS" value={st.storm} options={["legacy", "optimized"] as const} render={(v) => v.toUpperCase()} onChange={(v) => { liveMsg.set(""); brk.set({ storm: v, live: null }); }} /> : null}
             <p className="readout-line tnum">
-              <span className={`status ${pub.status === "Infeasible" ? "status--error" : "status--ok"}`}>{p ? statusWord(p) : ""}</span> · {p ? sourceWord(p) : ""} · {CASE_NOTE[st.case]}
+              <span className={`status ${pub.status === "Infeasible" ? "status--error" : pub.relaxation ? "status--warn" : "status--ok"}`}>{p ? statusWord(p) : ""}</span> · {p ? sourceWord(p) : ""} · {CASE_NOTE[st.case]}
             </p>
             {p?.status === "Infeasible" ? (
               <>

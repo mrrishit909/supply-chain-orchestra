@@ -170,7 +170,7 @@ html[data-motion="off"] .scene-journey .stage-content > .s01 { position: relativ
 .card-fine { margin: 8px 0 0; font-size: 11px; line-height: 1.25; letter-spacing: 0.02em; color: rgb(255 255 255 / 0.8); }
 .join { display: flex; flex-direction: column; gap: 8px; width: 100%; }
 .ledger { margin: 0; padding: 0; list-style: none; font: 400 11px / 1.45 var(--font-mono); letter-spacing: 0.02em; }
-.ledger li { opacity: 0.25; transition: opacity var(--motion-fast) linear calc(var(--i) * 120ms); }
+.ledger li { opacity: 0.62; transition: opacity var(--motion-fast) linear calc(var(--i) * 120ms); }
 .ledger.is-on li, html[data-motion="off"] .ledger li { opacity: 1; }
 .ok { color: var(--state-success); } .bad { color: var(--state-error); }
 .join-map { width: 100%; height: auto; max-height: 110px; }
@@ -351,9 +351,9 @@ html[data-motion="off"] .sheet { animation: none; }
 .chip-assumed { padding: 1px 5px; border: 1px solid #000; }
 .ev-path { width: 160px; height: 70px; }
 .ev-chip { align-self: flex-start; }
-html[data-motion="off"] .ev-stack { position: relative !important; top: auto; bottom: auto; padding: 120px 0 96px; display: flex; flex-direction: column; gap: 24px; }
+html[data-motion="off"] .ev-stack { position: relative !important; left: auto; right: auto; top: auto; bottom: auto; margin: 0 var(--margin); padding: 120px 0 96px; display: flex; flex-direction: column; gap: 24px; }
 html[data-motion="off"] .ev-pair { position: relative; transform: none; animation: none; }
-html[data-motion="off"] .ev-kicker { position: relative !important; top: 64px; }
+html[data-motion="off"] .ev-kicker { position: relative !important; left: auto; right: auto; top: 64px; margin: 0 var(--margin); }
 @media (max-width: 767px) { .ev-a { margin-left: 8px; padding: 14px; } .ev-a__text { font-size: 13px; } .ev-q { font-size: 13px; padding: 12px 14px; } }
 
 /* ---------- S08 closing ---------- */
@@ -436,3 +436,26 @@ html[data-motion="off"] .s01-statement { opacity: 1 !important; }
   .steps li:not(.is-on) { display: none; }
   .scene--storms .scene-panel { max-height: 50dvh; }
 }
+
+@media (min-width: 1024px) and (max-height: 820px), (min-width: 1024px) and (max-width: 1279px) { .scene--storms .scene-statement { font-size: 36px; } }
+
+@media (max-width: 767px) {
+  .storm-discs { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+  .storm-disc { flex-direction: row; align-items: center; gap: 8px; }
+  .storm-disc .slot-wrap { flex: 1 1 0; height: 100%; }
+  .storm-cap { writing-mode: horizontal-tb; max-width: 30%; text-align: left; }
+}
+
+.dock-pan { position: absolute !important; left: 56px; right: 56px; z-index: 5 !important; touch-action: pan-y; }
+.pan-arrow { position: absolute !important; z-index: 6 !important; width: 44px; height: 44px; margin-top: -2px; display: grid; place-items: center; border: 0; background: rgb(0 0 0 / 0.78); color: #fff; cursor: pointer; }
+.pan-arrow--l { left: 4px; }
+.pan-arrow--r { right: 4px; }
+@media (min-width: 768px) { .dock-pan, .pan-arrow { display: none; } }
+
+/* receding cards are silhouettes (palette recession); only the newest exchange carries readable text */
+.ev-pair[data-age="1"] .ev-q, .ev-pair[data-age="2"] .ev-q, .ev-pair[data-age="3"] .ev-q, .ev-pair[data-age="4"] .ev-q { color: transparent; }
+.ev-pair[data-age="1"] .ev-a > *, .ev-pair[data-age="2"] .ev-a > *, .ev-pair[data-age="3"] .ev-a > *, .ev-pair[data-age="4"] .ev-a > * { visibility: hidden; }
+html[data-motion="off"] .scene-closing .stage-content > * { inset: auto; }
+html[data-motion="off"] .close-text { margin: 0 var(--margin); max-width: none; }
+html[data-motion="off"] .close-corners .wordmark { position: relative; top: auto; left: auto; margin: 12px var(--margin) 0; }
+html[data-motion="off"] .close-scrim { display: none; }
