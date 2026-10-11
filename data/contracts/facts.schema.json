@@ -2,6 +2,54 @@
  "$schema": "https://json-schema.org/draft/2020-12/schema",
  "additionalProperties": false,
  "properties": {
+  "demand_price_bins": {
+   "additionalProperties": false,
+   "properties": {
+    "commodities": {
+     "items": {
+      "additionalProperties": false,
+      "properties": {
+       "edges": {
+        "items": {
+         "type": "number"
+        },
+        "maxItems": 6,
+        "minItems": 6,
+        "type": "array"
+       },
+       "id": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "id",
+       "edges"
+      ],
+      "type": "object"
+     },
+     "maxItems": 3,
+     "minItems": 3,
+     "type": "array"
+    },
+    "scenario": {
+     "type": "string"
+    },
+    "tag": {
+     "pattern": "^(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC)(/(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC))*$",
+     "type": "string"
+    },
+    "unit": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "scenario",
+    "unit",
+    "tag",
+    "commodities"
+   ],
+   "type": "object"
+  },
   "facts": {
    "items": {
     "additionalProperties": false,
@@ -61,7 +109,8 @@
   "schema_version",
   "generated_at",
   "tags",
-  "facts"
+  "facts",
+  "demand_price_bins"
  ],
  "title": "Facts",
  "type": "object"

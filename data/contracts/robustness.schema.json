@@ -111,6 +111,30 @@
      },
      "type": "array"
     },
+    "demand_tons": {
+     "items": {
+      "type": "number"
+     },
+     "type": "array"
+    },
+    "epicentre": {
+     "items": {
+      "type": [
+       "integer",
+       "null"
+      ]
+     },
+     "type": "array"
+    },
+    "failed_sites": {
+     "items": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array"
+     },
+     "type": "array"
+    },
     "lanes_down": {
      "items": {
       "type": "integer"
@@ -134,7 +158,10 @@
     "sites_down",
     "lanes_down",
     "regional_event",
-    "demand_multiplier"
+    "demand_multiplier",
+    "failed_sites",
+    "epicentre",
+    "demand_tons"
    ],
    "type": "object"
   },
@@ -214,7 +241,22 @@
       },
       "type": "array"
      },
+     "delivered_by_site": {
+      "items": {
+       "items": {
+        "type": "number"
+       },
+       "type": "array"
+      },
+      "type": "array"
+     },
      "service_level": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array"
+     },
+     "unmet_tons": {
       "items": {
        "type": "number"
       },
@@ -224,7 +266,9 @@
     "required": [
      "cost_usd",
      "service_level",
-     "adjusted_cost_usd"
+     "adjusted_cost_usd",
+     "unmet_tons",
+     "delivered_by_site"
     ],
     "type": "object"
    },
@@ -237,6 +281,12 @@
    "items": {
     "additionalProperties": false,
     "properties": {
+     "delivered_by_site": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array"
+     },
      "delta_cost_usd": {
       "type": "number"
      },
@@ -254,7 +304,8 @@
      "site",
      "delta_cost_usd",
      "service_level",
-     "unmet_tons"
+     "unmet_tons",
+     "delivered_by_site"
     ],
     "type": "object"
    },

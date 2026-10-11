@@ -154,7 +154,8 @@
        "random",
        "infeasible",
        "relaxed",
-       "closure"
+       "closure",
+       "sweep"
       ]
      },
      "lp_text_sha256": {
@@ -199,6 +200,9 @@
        "max_open_sites": {
         "type": "integer"
        },
+       "open_exactly": {
+        "type": "boolean"
+       },
        "relax": {
         "type": "boolean"
        }
@@ -209,6 +213,7 @@
        "fixed_cost_scale",
        "capacity_scale",
        "max_open_sites",
+       "open_exactly",
        "closed_sites",
        "closed_lanes",
        "fixed_open",

@@ -1,0 +1,573 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "additionalProperties": false,
+ "properties": {
+  "generated_at": {
+   "type": "string"
+  },
+  "note": {
+   "type": "string"
+  },
+  "schema_version": {
+   "const": "v1"
+  },
+  "series": {
+   "items": {
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "enum": [
+       "limit",
+       "exactly"
+      ]
+     },
+     "label": {
+      "type": "string"
+     },
+     "records": {
+      "items": {
+       "additionalProperties": false,
+       "properties": {
+        "components": {
+         "anyOf": [
+          {
+           "additionalProperties": false,
+           "properties": {
+            "fixed_usd": {
+             "type": "number"
+            },
+            "handling_usd": {
+             "type": "number"
+            },
+            "inbound_transport_usd": {
+             "type": "number"
+            },
+            "outbound_transport_usd": {
+             "type": "number"
+            },
+            "penalties_usd": {
+             "additionalProperties": false,
+             "properties": {
+              "capacity_overshoot": {
+               "type": "number"
+              },
+              "open_sites_excess": {
+               "type": "number"
+              },
+              "supply_overshoot": {
+               "type": "number"
+              },
+              "unmet_demand": {
+               "type": "number"
+              }
+             },
+             "required": [
+              "unmet_demand",
+              "capacity_overshoot",
+              "supply_overshoot",
+              "open_sites_excess"
+             ],
+             "type": "object"
+            }
+           },
+           "required": [
+            "fixed_usd",
+            "inbound_transport_usd",
+            "outbound_transport_usd",
+            "handling_usd",
+            "penalties_usd"
+           ],
+           "type": "object"
+          },
+          {
+           "type": "null"
+          }
+         ]
+        },
+        "cost_per_ton_usd": {
+         "type": [
+          "number",
+          "null"
+         ]
+        },
+        "haul_in_mi": {
+         "type": [
+          "number",
+          "null"
+         ]
+        },
+        "haul_out_mi": {
+         "type": [
+          "number",
+          "null"
+         ]
+        },
+        "k": {
+         "type": "integer"
+        },
+        "lp_text_sha256": {
+         "type": "string"
+        },
+        "objective_usd": {
+         "type": [
+          "number",
+          "null"
+         ]
+        },
+        "open_sites": {
+         "items": {
+          "type": "integer"
+         },
+         "type": "array"
+        },
+        "params": {
+         "additionalProperties": false,
+         "properties": {
+          "capacity_scale": {
+           "type": "number"
+          },
+          "closed_lanes": {
+           "items": {
+            "type": "integer"
+           },
+           "type": "array"
+          },
+          "closed_sites": {
+           "items": {
+            "type": "integer"
+           },
+           "type": "array"
+          },
+          "demand_scale": {
+           "type": "number"
+          },
+          "fixed_cost_scale": {
+           "type": "number"
+          },
+          "fixed_open": {
+           "items": {
+            "type": "integer"
+           },
+           "type": [
+            "array",
+            "null"
+           ]
+          },
+          "freight_scale": {
+           "type": "number"
+          },
+          "max_open_sites": {
+           "type": "integer"
+          },
+          "open_exactly": {
+           "type": "boolean"
+          },
+          "relax": {
+           "type": "boolean"
+          }
+         },
+         "required": [
+          "demand_scale",
+          "freight_scale",
+          "fixed_cost_scale",
+          "capacity_scale",
+          "max_open_sites",
+          "open_exactly",
+          "closed_sites",
+          "closed_lanes",
+          "fixed_open",
+          "relax"
+         ],
+         "type": "object"
+        },
+        "relaxed": {
+         "anyOf": [
+          {
+           "additionalProperties": false,
+           "properties": {
+            "components": {
+             "anyOf": [
+              {
+               "additionalProperties": false,
+               "properties": {
+                "fixed_usd": {
+                 "type": "number"
+                },
+                "handling_usd": {
+                 "type": "number"
+                },
+                "inbound_transport_usd": {
+                 "type": "number"
+                },
+                "outbound_transport_usd": {
+                 "type": "number"
+                },
+                "penalties_usd": {
+                 "additionalProperties": false,
+                 "properties": {
+                  "capacity_overshoot": {
+                   "type": "number"
+                  },
+                  "open_sites_excess": {
+                   "type": "number"
+                  },
+                  "supply_overshoot": {
+                   "type": "number"
+                  },
+                  "unmet_demand": {
+                   "type": "number"
+                  }
+                 },
+                 "required": [
+                  "unmet_demand",
+                  "capacity_overshoot",
+                  "supply_overshoot",
+                  "open_sites_excess"
+                 ],
+                 "type": "object"
+                }
+               },
+               "required": [
+                "fixed_usd",
+                "inbound_transport_usd",
+                "outbound_transport_usd",
+                "handling_usd",
+                "penalties_usd"
+               ],
+               "type": "object"
+              },
+              {
+               "type": "null"
+              }
+             ]
+            },
+            "cost_per_ton_usd": {
+             "type": [
+              "number",
+              "null"
+             ]
+            },
+            "haul_in_mi": {
+             "type": [
+              "number",
+              "null"
+             ]
+            },
+            "haul_out_mi": {
+             "type": [
+              "number",
+              "null"
+             ]
+            },
+            "lp_text_sha256": {
+             "type": "string"
+            },
+            "objective_usd": {
+             "type": [
+              "number",
+              "null"
+             ]
+            },
+            "open_sites": {
+             "items": {
+              "type": "integer"
+             },
+             "type": "array"
+            },
+            "params": {
+             "additionalProperties": false,
+             "properties": {
+              "capacity_scale": {
+               "type": "number"
+              },
+              "closed_lanes": {
+               "items": {
+                "type": "integer"
+               },
+               "type": "array"
+              },
+              "closed_sites": {
+               "items": {
+                "type": "integer"
+               },
+               "type": "array"
+              },
+              "demand_scale": {
+               "type": "number"
+              },
+              "fixed_cost_scale": {
+               "type": "number"
+              },
+              "fixed_open": {
+               "items": {
+                "type": "integer"
+               },
+               "type": [
+                "array",
+                "null"
+               ]
+              },
+              "freight_scale": {
+               "type": "number"
+              },
+              "max_open_sites": {
+               "type": "integer"
+              },
+              "open_exactly": {
+               "type": "boolean"
+              },
+              "relax": {
+               "type": "boolean"
+              }
+             },
+             "required": [
+              "demand_scale",
+              "freight_scale",
+              "fixed_cost_scale",
+              "capacity_scale",
+              "max_open_sites",
+              "open_exactly",
+              "closed_sites",
+              "closed_lanes",
+              "fixed_open",
+              "relax"
+             ],
+             "type": "object"
+            },
+            "relaxation": {
+             "additionalProperties": false,
+             "properties": {
+              "capacity_overshoot": {
+               "items": {
+                "additionalProperties": false,
+                "properties": {
+                 "pct_of_capacity": {
+                  "type": "number"
+                 },
+                 "site": {
+                  "type": "integer"
+                 },
+                 "units": {
+                  "type": "number"
+                 }
+                },
+                "required": [
+                 "site",
+                 "units",
+                 "pct_of_capacity"
+                ],
+                "type": "object"
+               },
+               "type": "array"
+              },
+              "open_sites_excess": {
+               "type": "number"
+              },
+              "summary": {
+               "type": "string"
+              },
+              "supply_overshoot": {
+               "items": {
+                "additionalProperties": false,
+                "properties": {
+                 "commodity": {
+                  "type": "integer"
+                 },
+                 "plant": {
+                  "type": "integer"
+                 },
+                 "tons": {
+                  "type": "number"
+                 }
+                },
+                "required": [
+                 "plant",
+                 "commodity",
+                 "tons"
+                ],
+                "type": "object"
+               },
+               "type": "array"
+              },
+              "total_penalty_usd": {
+               "type": "number"
+              },
+              "unmet_demand": {
+               "items": {
+                "additionalProperties": false,
+                "properties": {
+                 "commodity": {
+                  "type": "integer"
+                 },
+                 "demand": {
+                  "type": "integer"
+                 },
+                 "tons": {
+                  "type": "number"
+                 }
+                },
+                "required": [
+                 "demand",
+                 "commodity",
+                 "tons"
+                ],
+                "type": "object"
+               },
+               "type": "array"
+              },
+              "words": {
+               "items": {
+                "type": "string"
+               },
+               "type": "array"
+              }
+             },
+             "required": [
+              "total_penalty_usd",
+              "unmet_demand",
+              "capacity_overshoot",
+              "supply_overshoot",
+              "open_sites_excess",
+              "summary",
+              "words"
+             ],
+             "type": "object"
+            },
+            "routes_in": {
+             "items": {
+              "items": {
+               "type": "number"
+              },
+              "maxItems": 4,
+              "minItems": 4,
+              "type": "array"
+             },
+             "type": "array"
+            },
+            "routes_out": {
+             "items": {
+              "items": {
+               "type": "number"
+              },
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+             },
+             "type": "array"
+            },
+            "service_level": {
+             "type": [
+              "number",
+              "null"
+             ]
+            },
+            "status": {
+             "enum": [
+              "Optimal",
+              "Infeasible"
+             ]
+            }
+           },
+           "required": [
+            "params",
+            "status",
+            "objective_usd",
+            "components",
+            "open_sites",
+            "routes_out",
+            "routes_in",
+            "lp_text_sha256",
+            "haul_in_mi",
+            "haul_out_mi",
+            "cost_per_ton_usd",
+            "relaxation",
+            "service_level"
+           ],
+           "type": "object"
+          },
+          {
+           "type": "null"
+          }
+         ]
+        },
+        "routes_in": {
+         "items": {
+          "items": {
+           "type": "number"
+          },
+          "maxItems": 4,
+          "minItems": 4,
+          "type": "array"
+         },
+         "type": "array"
+        },
+        "routes_out": {
+         "items": {
+          "items": {
+           "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "type": "array"
+         },
+         "type": "array"
+        },
+        "status": {
+         "enum": [
+          "Optimal",
+          "Infeasible"
+         ]
+        }
+       },
+       "required": [
+        "k",
+        "params",
+        "status",
+        "objective_usd",
+        "components",
+        "open_sites",
+        "routes_out",
+        "routes_in",
+        "lp_text_sha256",
+        "haul_in_mi",
+        "haul_out_mi",
+        "cost_per_ton_usd",
+        "relaxed"
+       ],
+       "type": "object"
+      },
+      "maxItems": 14,
+      "minItems": 14,
+      "type": "array"
+     }
+    },
+    "required": [
+     "id",
+     "label",
+     "records"
+    ],
+    "type": "object"
+   },
+   "maxItems": 2,
+   "minItems": 2,
+   "type": "array"
+  },
+  "tags": {
+   "additionalProperties": {
+    "pattern": "^(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC)(/(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC))*$",
+    "type": "string"
+   },
+   "minProperties": 1,
+   "type": "object"
+  }
+ },
+ "required": [
+  "schema_version",
+  "generated_at",
+  "tags",
+  "note",
+  "series"
+ ],
+ "title": "Site-count sweep",
+ "type": "object"
+}

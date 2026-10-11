@@ -103,6 +103,9 @@
     "max_open_sites": {
      "type": "integer"
     },
+    "open_exactly": {
+     "type": "boolean"
+    },
     "relax": {
      "type": "boolean"
     }
@@ -113,6 +116,7 @@
     "fixed_cost_scale",
     "capacity_scale",
     "max_open_sites",
+    "open_exactly",
     "closed_sites",
     "closed_lanes",
     "fixed_open",
@@ -245,7 +249,8 @@
        "design",
        "stress",
        "infeasible",
-       "relaxed"
+       "relaxed",
+       "sweep"
       ]
      },
      "label": {
@@ -290,6 +295,9 @@
        "max_open_sites": {
         "type": "integer"
        },
+       "open_exactly": {
+        "type": "boolean"
+       },
        "relax": {
         "type": "boolean"
        }
@@ -300,6 +308,7 @@
        "fixed_cost_scale",
        "capacity_scale",
        "max_open_sites",
+       "open_exactly",
        "closed_sites",
        "closed_lanes",
        "fixed_open",
@@ -319,6 +328,66 @@
    },
    "minItems": 1,
    "type": "array"
+  },
+  "relaxation_words": {
+   "additionalProperties": false,
+   "properties": {
+    "examples": {
+     "items": {
+      "additionalProperties": false,
+      "properties": {
+       "family": {
+        "type": "string"
+       },
+       "fields": {
+        "additionalProperties": {
+         "type": "string"
+        },
+        "type": "object"
+       },
+       "scenario": {
+        "type": "string"
+       },
+       "sentence": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "scenario",
+       "family",
+       "fields",
+       "sentence"
+      ],
+      "type": "object"
+     },
+     "type": "array"
+    },
+    "order": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "rules": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "templates": {
+     "additionalProperties": {
+      "type": "string"
+     },
+     "type": "object"
+    }
+   },
+   "required": [
+    "templates",
+    "order",
+    "rules",
+    "examples"
+   ],
+   "type": "object"
   },
   "schema_version": {
    "const": "v1"
@@ -350,6 +419,33 @@
   "solver": {
    "additionalProperties": false,
    "properties": {
+    "browser": {
+     "additionalProperties": false,
+     "properties": {
+      "extra_status_strings": {
+       "items": {
+        "type": "string"
+       },
+       "type": "array"
+      },
+      "time_limit_rule": {
+       "type": "string"
+      },
+      "time_limit_s": {
+       "type": "number"
+      },
+      "warmup_preset": {
+       "type": "string"
+      }
+     },
+     "required": [
+      "time_limit_s",
+      "extra_status_strings",
+      "warmup_preset",
+      "time_limit_rule"
+     ],
+     "type": "object"
+    },
     "browser_note": {
      "type": "string"
     },
@@ -384,7 +480,8 @@
     "highs_python",
     "highs_browser",
     "status_strings",
-    "browser_note"
+    "browser_note",
+    "browser"
    ],
    "type": "object"
   },
@@ -404,6 +501,7 @@
   "formulation",
   "lp_format",
   "solver",
+  "relaxation_words",
   "penalties",
   "defaults",
   "controls",

@@ -128,17 +128,29 @@
      "pop2025": {
       "type": "integer"
      },
+     "short_name": {
+      "type": "string"
+     },
      "state": {
       "type": "string"
+     },
+     "x": {
+      "type": "number"
+     },
+     "y": {
+      "type": "number"
      }
     },
     "required": [
      "id",
      "geoid",
      "name",
+     "short_name",
      "state",
      "lat",
      "lon",
+     "x",
+     "y",
      "pop2025",
      "demand_tons"
     ],
@@ -209,6 +221,9 @@
      "pop2025": {
       "type": "integer"
      },
+     "short_name": {
+      "type": "string"
+     },
      "state": {
       "type": "string"
      },
@@ -219,21 +234,68 @@
       "maxItems": 3,
       "minItems": 3,
       "type": "array"
+     },
+     "x": {
+      "type": "number"
+     },
+     "y": {
+      "type": "number"
      }
     },
     "required": [
      "id",
      "geoid",
      "name",
+     "short_name",
      "state",
      "lat",
      "lon",
+     "x",
+     "y",
      "pop2025",
      "supply_tons"
     ],
     "type": "object"
    },
    "type": "array"
+  },
+  "projection": {
+   "additionalProperties": false,
+   "properties": {
+    "convention": {
+     "type": "string"
+    },
+    "earth_radius": {
+     "type": "number"
+    },
+    "name": {
+     "type": "string"
+    },
+    "origin": {
+     "items": {
+      "type": "number"
+     },
+     "maxItems": 2,
+     "minItems": 2,
+     "type": "array"
+    },
+    "parallels": {
+     "items": {
+      "type": "number"
+     },
+     "maxItems": 2,
+     "minItems": 2,
+     "type": "array"
+    }
+   },
+   "required": [
+    "name",
+    "parallels",
+    "origin",
+    "earth_radius",
+    "convention"
+   ],
+   "type": "object"
   },
   "schema_version": {
    "const": "v1"
@@ -269,17 +331,29 @@
      "pop2025": {
       "type": "integer"
      },
+     "short_name": {
+      "type": "string"
+     },
      "state": {
       "type": "string"
+     },
+     "x": {
+      "type": "number"
+     },
+     "y": {
+      "type": "number"
      }
     },
     "required": [
      "id",
      "geoid",
      "name",
+     "short_name",
      "state",
      "lat",
      "lon",
+     "x",
+     "y",
      "pop2025",
      "land_index",
      "fixed_cost_usd_yr",
@@ -330,6 +404,7 @@
   "schema_version",
   "generated_at",
   "tags",
+  "projection",
   "units",
   "commodities",
   "demand_nodes",

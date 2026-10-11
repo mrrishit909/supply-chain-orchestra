@@ -11,6 +11,9 @@
   "generated_at": {
    "type": "string"
   },
+  "journeys_note": {
+   "type": "string"
+  },
   "scenarios": {
    "items": {
     "additionalProperties": false,
@@ -19,6 +22,40 @@
       "items": {
        "additionalProperties": false,
        "properties": {
+        "fd_check": {
+         "items": {
+          "additionalProperties": false,
+          "properties": {
+           "delta": {
+            "type": "number"
+           },
+           "open_set_changed": {
+            "type": "boolean"
+           },
+           "pct": {
+            "type": "number"
+           },
+           "predicted_saving_usd": {
+            "type": "number"
+           },
+           "solved_saving_usd": {
+            "type": "number"
+           }
+          },
+          "required": [
+           "pct",
+           "delta",
+           "predicted_saving_usd",
+           "solved_saving_usd",
+           "open_set_changed"
+          ],
+          "type": "object"
+         },
+         "type": [
+          "array",
+          "null"
+         ]
+        },
         "group": {
          "enum": [
           "capacity",
@@ -126,8 +163,62 @@
      "description": {
       "type": "string"
      },
+     "hero": {
+      "anyOf": [
+       {
+        "additionalProperties": false,
+        "properties": {
+         "commodity": {
+          "type": "integer"
+         },
+         "in_mi": {
+          "type": "number"
+         },
+         "node": {
+          "type": "integer"
+         },
+         "out_mi": {
+          "type": "number"
+         },
+         "plant": {
+          "type": "integer"
+         },
+         "site": {
+          "type": "integer"
+         },
+         "tons": {
+          "type": "number"
+         }
+        },
+        "required": [
+         "plant",
+         "site",
+         "node",
+         "commodity",
+         "tons",
+         "in_mi",
+         "out_mi"
+        ],
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "id": {
       "type": "string"
+     },
+     "journeys": {
+      "items": {
+       "items": {
+        "type": "number"
+       },
+       "maxItems": 5,
+       "minItems": 5,
+       "type": "array"
+      },
+      "type": "array"
      },
      "kind": {
       "type": "string"
@@ -207,6 +298,9 @@
        "max_open_sites": {
         "type": "integer"
        },
+       "open_exactly": {
+        "type": "boolean"
+       },
        "relax": {
         "type": "boolean"
        }
@@ -217,6 +311,7 @@
        "fixed_cost_scale",
        "capacity_scale",
        "max_open_sites",
+       "open_exactly",
        "closed_sites",
        "closed_lanes",
        "fixed_open",
@@ -306,6 +401,12 @@
            "type": "object"
           },
           "type": "array"
+         },
+         "words": {
+          "items": {
+           "type": "string"
+          },
+          "type": "array"
          }
         },
         "required": [
@@ -314,7 +415,8 @@
          "capacity_overshoot",
          "supply_overshoot",
          "open_sites_excess",
-         "summary"
+         "summary",
+         "words"
         ],
         "type": "object"
        },
@@ -415,6 +517,8 @@
      "routes_in",
      "site_use",
      "demand_price_usd_ton",
+     "journeys",
+     "hero",
      "binding",
      "relaxation"
     ],
@@ -441,6 +545,7 @@
   "tags",
   "flow_precision",
   "duals_note",
+  "journeys_note",
   "scenarios"
  ],
  "title": "Solutions",

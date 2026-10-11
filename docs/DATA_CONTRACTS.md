@@ -9,11 +9,12 @@ OBSERVED | DERIVED | SYNTHETIC | SIMULATED, joined by `/`). Each artifact is und
 |---|---|---|
 | `meta.json` | sources with hashes, attribution, sizes, limitations, file list | OBSERVED sources |
 | `quality.json` | join ledger (counts at every filter), selection summary, executed generator checks | OBSERVED/DERIVED |
-| `network.json` | commodities, 100 demand nodes, 14 candidate sites, 3 plants, out-arc list, plant-to-site distances, generator constants | place fields OBSERVED, rest SYNTHETIC |
+| `network.json` | commodities, 100 demand nodes, 14 candidate sites, 3 plants (with short_name and projected x, y), projection constants, out-arc list, plant-to-site distances, generator constants | place fields OBSERVED, distances and x, y DERIVED, rest SYNTHETIC |
 | `model.json` | formulation, LP text layout rules, solver options, penalties, controls[], presets, sizes | SYNTHETIC |
-| `solutions.json` | precomputed scenario solutions: status, objective, components, routes, binding constraints, duals, relaxation reports | SYNTHETIC |
+| `solutions.json` | precomputed scenario solutions: status, objective, components, routes, journeys + hero, binding constraints with finite-difference checks, duals, relaxation reports with words | SYNTHETIC/SIMULATED (duals DERIVED) |
 | `robustness.json` | seeded Monte Carlo config, per-draw disruption descriptors and outcomes, summaries, histograms, site criticality | SYNTHETIC/SIMULATED |
 | `solver_test_vectors.json` | browser parity vectors: generator inputs (params), LP text SHA-256, status, objective; one full LP text | SYNTHETIC |
+| `sweep.json` | DR-1: site-count sweep k = 1..14 in two series (limit, exactly) with routes, hauls, relaxed records for infeasible k | SYNTHETIC/SIMULATED |
 | `facts.json` | every headline number used in copy (single source of truth) | mixed |
 
 ## Units and conventions
@@ -47,3 +48,29 @@ Recomputing demand balance from routes alone matches to 0.01 t per (node, commod
 
 ## Honesty tags
 OBSERVED: population, internal-point coordinates. DERIVED: road-equivalent distances. SYNTHETIC: all generated and solved quantities. SIMULATED: Monte Carlo draws and outcomes.
+
+## Data requests DR-1 .. DR-10 (P07-DATA-002)
+Everything below is published, tested (`tests/test_requests.py`) and covered by the schemas. Items that could not be supported as asked are in **Unsupported or changed**.
+
+| DR | Where | Contract |
+|---|---|---|
+| DR-1 | `sweep.json` | `series[{id: limit|exactly, records[14]}]`, one record per k = 1..14: `params, status, objective_usd, components, open_sites, routes_out, routes_in, lp_text_sha256, haul_in_mi, haul_out_mi, cost_per_ton_usd`, and `relaxed` (same fields plus `relaxation`, `service_level`) when the strict record is Infeasible. New param `open_exactly` (default false) writes the `mxo` row as `=` in `analytics/milp.py` and `tests/parity/build_lp.mjs`; with `relax` the row is `sum z - sm = k`, so the relaxation can only open more sites than k. 10 new parity vectors (`sweep:*`, kind `sweep`). |
+| DR-2 | `model.defaults`, `model.presets` | `max_open_sites` default 14 (and `open_exactly` false); presets with no explicit limit use 14; hashes and vectors regenerated. `lean_sites` (5), `infeasible_sites` and `relaxed_sites` (2) keep their explicit limits. |
+| DR-3 | tags | `solutions.tags.scenarios = routes = journeys = SYNTHETIC/SIMULATED`, `duals = DERIVED`; facts for objective, saving, open sites, LP gap are `SYNTHETIC/SIMULATED`; network `projection`, `xy` DERIVED. |
+| DR-4 | `solutions.scenarios[].journeys`, `.hero` | `[plant, site, node, commodity, tons]`. Rule: for each site f and commodity k, each outbound route (f to node) is split over the plants in proportion to f's inbound tons of k from each plant. Computed from the 3-decimal route lists (a client must round flows to 3 decimals first), rows < 0.0005 omitted, each row rounded to 3 decimals. `hero` = largest commodity-0 journey with inbound and outbound legs each >= 100 road-equivalent miles, ties lowest (plant, site, node); `{plant, site, node, commodity, tons, in_mi, out_mi}` or null. Optimized: Fort Worth, Houston, San Antonio, 19,857 t, 284.6 + 227.6 mi. |
+| DR-5 | `network.projection`, `x`, `y` | Albers conic equal area on the unit sphere, parallels 29.5 and 45.5, origin 37.5 N 96 W; x east, y north (clients flip y for screens); formulas in `projection.convention`; rounded to 6 decimals; `analytics/network.py::albers` is the reference and a test re-derives it independently. |
+| DR-6 | `robustness.draws`, `results`, `site_criticality` | per draw: `failed_sites` (all failed site ids, 0 to 4 sites), `epicentre` (demand-node index, null without a regional event), `demand_tons` (total after shocks); per design: `unmet_tons`, `delivered_by_site` (tons out of each open site, in the order of the design's `open_sites`, 1 decimal); per `site_criticality` record: `delivered_by_site` (optimized open-set order) and `unmet_tons`. delivered + unmet = demand_tons within 0.6 t. |
+| DR-7 | `facts.json` | `haul_in_mi_*`, `haul_out_mi_*` per solved scenario, `cost_per_ton_usd_*` per design scenario, `plant_supply_total_tons` (3,237,227), `demand_over_supply` (0.8), hero names/tons/miles, `demand_price_bins` (5 bins, quantile edges per commodity at the optimum), `mc_full_service_legacy/optimized` (176, 319), `parity_*` (from `artifacts/evidence/parity_report.json`), `optimized_lp_sha256_prefix`. Per-k hauls and cost per ton live in `sweep.json` records (same computation). |
+| DR-8 | `solutions[].relaxation.words`, `model.relaxation_words` | Sentences from `templates` (families supply, capacity, unmet, open_sites) with the formatting `rules`; `examples` give `fields` and the rendered `sentence` so the client can be tested for string equality (`template.format(**fields)`). |
+| DR-9 | `model.solver.browser` | `{time_limit_s: 10, extra_status_strings: ["Time limit reached"], warmup_preset: "optimized", time_limit_rule}`. Measured on highs@1.15.3: on time-out `Status` is `Time limit reached`, `ObjectiveValue` is Infinity without an incumbent and the incumbent objective otherwise. |
+| DR-10 | `solutions.optimized.binding[].fd_check` | for each binding capacity / supply row: at +1% and +5% of the right-hand side, `{pct, delta, predicted_saving_usd (shadow x delta), solved_saving_usd (open set fixed), open_set_changed (free MILP opens a different set)}`. |
+
+### Unsupported or changed
+1. **Strict infeasibility starts above k = 2.** The brief says k = 1 and 2 are infeasible; the solver shows strict k = 1, 2, 3 and 4 infeasible in both series (the four largest-capacity sites cannot hold the demand). `sweep.json` carries relaxed records for all four. The k = 3 and 4 records are infeasible, not feasible.
+2. **No MIP gap from the browser solver.** DR-9 asked for the gap from `mip_gap`; highs-js returns only `Status`, `ObjectiveValue`, `Columns`, `Rows`. The contract is the `time_limit_rule` text: gap unknown unless the params equal a preset (then computed against that preset's `lp_relaxation_bound_usd`).
+3. **No per-city flows per Monte Carlo draw** (as the brief acknowledges): only site totals, unmet tons and failed sites.
+4. **Words for live relaxed solves**: status, objective, the family totals and the counts are determined by the model; the split of a violation across plants or sites, and the "worst" site or city, can differ between alternative optima, so string parity is guaranteed only for the published presets and where the optimum is unique.
+5. **Sizes**: `robustness.json` is about 52 KB gzip (asked under 25 KB for the added detail), `sweep.json` about 10 KB, `solutions.json` about 32 KB with journeys; all far below 400 KB.
+6. **DR-4 on the LCP path**: the optimized journeys are inside `solutions.json` (32 KB gzip with all presets); a client that wants only the hero can apply the rule to the optimized routes.
+7. `epicentre` is a demand-node index, not a string id (`D006` = index 6).
+8. **Run order**: `facts.json` reads `artifacts/evidence/parity_report.json`, which is produced from the published vectors. After a change to the model run `pipelines.publish`, `node tests/parity/build_lp.mjs --report ...`, then `pipelines.publish` again (idempotent from then on).

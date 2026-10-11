@@ -33,7 +33,7 @@ def top(title: str, props: dict, required: list[str] | None = None) -> dict:
 
 
 PARAMS = obj({"demand_scale": N, "freight_scale": N, "fixed_cost_scale": N, "capacity_scale": N, "max_open_sites": I,
-              "closed_sites": arr(I), "closed_lanes": arr(I), "fixed_open": {"type": ["array", "null"], "items": I}, "relax": B})
+              "open_exactly": B, "closed_sites": arr(I), "closed_lanes": arr(I), "fixed_open": {"type": ["array", "null"], "items": I}, "relax": B})
 COMPONENTS = obj({"fixed_usd": N, "inbound_transport_usd": N, "outbound_transport_usd": N, "handling_usd": N,
                   "penalties_usd": obj({"unmet_demand": N, "capacity_overshoot": N, "supply_overshoot": N, "open_sites_excess": N})})
 STATUS = {"enum": ["Optimal", "Infeasible"]}
@@ -56,8 +56,9 @@ def schemas() -> dict[str, dict]:
         "selection": obj({"demand_nodes": I, "demand_population": I, "share_of_usable_population": N, "excluded_states": arr(S), "internal_point_note": S}),
         "checks": arr(obj({"id": S, "description": S, "result": {"enum": ["PASS", "FAIL"]}, "value": {"type": ["number", "string", "boolean"]}}), 1),
     })
-    place = {"id": S, "geoid": S, "name": S, "state": S, "lat": N, "lon": N, "pop2025": I}
+    place = {"id": S, "geoid": S, "name": S, "short_name": S, "state": S, "lat": N, "lon": N, "x": N, "y": N, "pop2025": I}
     out["network"] = top("Network", {
+        "projection": obj({"name": S, "parallels": arr(N, 2, 2), "origin": arr(N, 2, 2), "earth_radius": N, "convention": S}),
         "units": obj({"distance": S, "demand": S, "capacity": S, "cost": S, "population": S}),
         "commodities": arr(obj({"id": S, "label": S, "tons_per_1000_pop": N, "rate_in_usd_ton_mi": N, "rate_out_usd_ton_mi": N, "handling_usd_ton": N, "capacity_units_per_ton": N}), 3, 3),
         "demand_nodes": arr(obj({**place, "demand_tons": arr(I, 3, 3)})),
@@ -71,50 +72,60 @@ def schemas() -> dict[str, dict]:
     out["model"] = top("Model", {
         "formulation": obj({"summary": S, "objective": S, "variables": arr(S), "constraints": arr(S), "relaxation": arr(S)}),
         "lp_format": obj({"rounding_rule": S, "number_format": S, "column_order": arr(S), "row_order": arr(S), "names": S, "sections": S, "note": S}),
-        "solver": obj({"options": {"type": "object"}, "highs_python": S, "highs_browser": S, "status_strings": obj({"optimal": S, "infeasible": S}), "browser_note": S}),
+        "solver": obj({"options": {"type": "object"}, "highs_python": S, "highs_browser": S, "status_strings": obj({"optimal": S, "infeasible": S}), "browser_note": S,
+                       "browser": obj({"time_limit_s": N, "extra_status_strings": arr(S), "warmup_preset": S, "time_limit_rule": S})}),
+        "relaxation_words": obj({"templates": {"type": "object", "additionalProperties": S}, "order": arr(S), "rules": arr(S), "examples": arr(obj({"scenario": S, "family": S, "fields": {"type": "object", "additionalProperties": S}, "sentence": S}))}),
         "penalties": obj({"unmet_usd_ton": N, "capacity_usd_unit": N, "supply_usd_ton": N, "open_sites_usd_site": N, "note": S}),
         "defaults": PARAMS,
         "controls": arr(obj({"id": S, "label": S, "unit": S, "kind": {"enum": ["range", "toggle", "multiselect"]}, "min": NN, "max": NN, "step": NN, "default": {}, "param_path": S,
                              "options": {"type": ["array", "null"]}}, ["id", "label", "unit", "kind", "default", "param_path"]), 1),
-        "presets": arr(obj({"id": S, "label": S, "description": S, "kind": {"enum": ["design", "stress", "infeasible", "relaxed"]}, "params": PARAMS}), 1),
+        "presets": arr(obj({"id": S, "label": S, "description": S, "kind": {"enum": ["design", "stress", "infeasible", "relaxed", "sweep"]}, "params": PARAMS}), 1),
         "sizes": obj({"columns": I, "rows": I, "binaries": I, "nonzeros": I}),
     })
     route_out = arr({"type": "array", "items": N, "minItems": 3, "maxItems": 3})  # [arc index, commodity, tons]
     route_in = arr({"type": "array", "items": N, "minItems": 4, "maxItems": 4})   # [plant, site, commodity, tons]
     relax = obj({"total_penalty_usd": N, "unmet_demand": arr(obj({"demand": I, "commodity": I, "tons": N})), "capacity_overshoot": arr(obj({"site": I, "units": N, "pct_of_capacity": N})),
-                 "supply_overshoot": arr(obj({"plant": I, "commodity": I, "tons": N})), "open_sites_excess": N, "summary": S})
+                 "supply_overshoot": arr(obj({"plant": I, "commodity": I, "tons": N})), "open_sites_excess": N, "summary": S, "words": arr(S)})
     scen = obj({
         "id": S, "label": S, "description": S, "kind": S, "params": PARAMS, "status": STATUS, "objective_usd": NN, "lp_text_sha256": S, "components": {"anyOf": [COMPONENTS, {"type": "null"}]},
         "open_sites": arr(I), "mip_gap": NN, "mip_nodes": {"type": ["integer", "null"]}, "lp_relaxation_bound_usd": NN, "service_level": NN, "unmet_tons": NN, "total_demand_tons": N,
         "routes_out": route_out, "routes_in": route_in,
         "site_use": arr(obj({"site": I, "units": N, "capacity_units": N, "utilization": N})),
         "demand_price_usd_ton": {"type": ["array", "null"], "items": arr(N, 3, 3)},
-        "binding": arr(obj({"group": {"enum": ["capacity", "plant_supply", "open_sites"]}, "id": S, "slack": N, "shadow_usd_per_unit": NN, "unit": S})),
+        "journeys": arr(arr(N, 5, 5)),
+        "hero": {"anyOf": [obj({"plant": I, "site": I, "node": I, "commodity": I, "tons": N, "in_mi": N, "out_mi": N}), {"type": "null"}]},
+        "binding": arr(obj({"group": {"enum": ["capacity", "plant_supply", "open_sites"]}, "id": S, "slack": N, "shadow_usd_per_unit": NN, "unit": S,
+                            "fd_check": {"type": ["array", "null"], "items": obj({"pct": N, "delta": N, "predicted_saving_usd": N, "solved_saving_usd": N, "open_set_changed": B})}},
+                           ["group", "id", "slack", "shadow_usd_per_unit", "unit"])),
         "relaxation": {"anyOf": [relax, {"type": "null"}]},
     })
-    out["solutions"] = top("Solutions", {"flow_precision": S, "duals_note": S, "scenarios": arr(scen, 1)})
+    out["solutions"] = top("Solutions", {"flow_precision": S, "duals_note": S, "journeys_note": S, "scenarios": arr(scen, 1)})
+    rec = {"params": PARAMS, "status": STATUS, "objective_usd": NN, "components": {"anyOf": [COMPONENTS, {"type": "null"}]}, "open_sites": arr(I), "routes_out": route_out, "routes_in": route_in,
+           "lp_text_sha256": S, "haul_in_mi": NN, "haul_out_mi": NN, "cost_per_ton_usd": NN}
+    out["sweep"] = top("Site-count sweep", {"note": S, "series": arr(obj({"id": {"enum": ["limit", "exactly"]}, "label": S, "records": arr(obj({"k": I, **rec, "relaxed": {"anyOf": [obj({**rec, "relaxation": relax, "service_level": NN}), {"type": "null"}]}}), 14, 14)}), 2, 2)})
     hist = obj({"edges": arr(N), "counts": arr(I)})
     des = lambda extra=None: obj({"cost_usd": arr(N), "service_level": arr(N), "adjusted_cost_usd": arr(N), **(extra or {})})
     out["robustness"] = top("Robustness", {
         "config": obj({"draws": I, "seed": I, "p_site_outage": N, "p_regional_event": N, "regional_radius_mi": N, "p_site_in_region": N, "p_lane_outage": N,
                        "demand_global_sd": N, "demand_commodity_sd": N, "demand_node_sd": N, "regional_surge": N, "surge_radius_mi": N, "lost_sales_usd_ton": N, "note": S}),
         "designs": arr(obj({"id": S, "label": S, "open_sites": arr(I), "undisrupted_cost_usd": N, "undisrupted_service_level": N}), 2, 3),
-        "draws": obj({"sites_down": arr(I), "lanes_down": arr(I), "regional_event": arr(I), "demand_multiplier": arr(N)}),
-        "results": {"type": "object", "additionalProperties": des()},
+        "draws": obj({"sites_down": arr(I), "lanes_down": arr(I), "regional_event": arr(I), "demand_multiplier": arr(N), "failed_sites": arr(arr(I)), "epicentre": arr({"type": ["integer", "null"]}), "demand_tons": arr(N)}),
+        "results": {"type": "object", "additionalProperties": des({"unmet_tons": arr(N), "delivered_by_site": arr(arr(N))})},
         "summary": {"type": "object", "additionalProperties": obj({"cost": SUMMARY, "service_level": SUMMARY, "adjusted_cost": SUMMARY, "share_full_service": N, "mean_regret_vs_undisrupted_usd": N})},
         "histograms": {"type": "object", "additionalProperties": obj({"cost": hist, "service_level": hist})},
-        "site_criticality": arr(obj({"site": I, "delta_cost_usd": N, "service_level": N, "unmet_tons": N})),
+        "site_criticality": arr(obj({"site": I, "delta_cost_usd": N, "service_level": N, "unmet_tons": N, "delivered_by_site": arr(N)})),
         "storm_exemplar": obj({"epicenter": S, "radius_mi": N, "closed_sites": arr(I)}),
     })
     vec = obj({
-        "id": S, "kind": {"enum": ["preset", "random", "infeasible", "relaxed", "closure"]}, "params": PARAMS, "lp_text_sha256": S,
+        "id": S, "kind": {"enum": ["preset", "random", "infeasible", "relaxed", "closure", "sweep"]}, "params": PARAMS, "lp_text_sha256": S,
         "expected": obj({"status": STATUS, "objective_usd": NN, "components": {"anyOf": [COMPONENTS, {"type": "null"}]}, "open_sites": arr(I), "unmet_tons": NN, "relaxed_groups": arr(S)}),
     })
     out["solver_test_vectors"] = top("Solver test vectors", {
         "note": S, "parity_keys": arr(S, 3), "tolerance_rel": N, "tolerance_abs_usd": N, "solver_options": {"type": "object"},
         "lp_text": S, "lp_text_vector_id": S, "vectors": arr(vec, 1),
     })
-    out["facts"] = top("Facts", {"facts": arr(obj({"id": S, "label": S, "value": {"type": ["number", "string"]}, "unit": S, "tag": TAG, "source": S}), 1)})
+    out["facts"] = top("Facts", {"facts": arr(obj({"id": S, "label": S, "value": {"type": ["number", "string"]}, "unit": S, "tag": TAG, "source": S}), 1),
+                                 "demand_price_bins": obj({"scenario": S, "unit": S, "tag": TAG, "commodities": arr(obj({"id": S, "edges": arr(N, 6, 6)}), 3, 3)})})
     return out
 
 
