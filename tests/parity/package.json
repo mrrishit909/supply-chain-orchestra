@@ -1,0 +1,6 @@
+{
+  "name": "p07-parity",
+  "private": true,
+  "type": "module",
+  "dependencies": { "highs": "1.15.3" }
+}

@@ -9,7 +9,7 @@ OBSERVED | DERIVED | SYNTHETIC | SIMULATED, joined by `/`). Each artifact is und
 |---|---|---|
 | `meta.json` | sources with hashes, attribution, sizes, limitations, file list | OBSERVED sources |
 | `quality.json` | join ledger (counts at every filter), selection summary, executed generator checks | OBSERVED/DERIVED |
-| `network.json` | commodities, 100 demand nodes, 16 candidate sites, 3 plants, out-arc list, plant-to-site distances, generator constants | place fields OBSERVED, rest SYNTHETIC |
+| `network.json` | commodities, 100 demand nodes, 14 candidate sites, 3 plants, out-arc list, plant-to-site distances, generator constants | place fields OBSERVED, rest SYNTHETIC |
 | `model.json` | formulation, LP text layout rules, solver options, penalties, controls[], presets, sizes | SYNTHETIC |
 | `solutions.json` | precomputed scenario solutions: status, objective, components, routes, binding constraints, duals, relaxation reports | SYNTHETIC |
 | `robustness.json` | seeded Monte Carlo config, per-draw disruption descriptors and outcomes, summaries, histograms, site criticality | SYNTHETIC/SIMULATED |
