@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-motion="on">
+  <head>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#000000" />
+    <title>Supply Chain Orchestra</title>
+    <meta name="description" content="Supply Chain Orchestra: one invented year of freight over a hundred real US cities, drawn as one disc cut by a dock, with a mixed-integer model you can re-solve in your browser." />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/src/assets/fonts/newsreader-opsz-400-site.woff2" />
+    <script>
+      // Before first paint: motion preference (OS or in-site session override) and gallery flag.
+      (function () {
+        var d = document.documentElement, o = null;
+        try { o = sessionStorage.getItem("sco.motion"); } catch (e) {}
+        var rm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+        d.setAttribute("data-motion", o === "on" || o === "off" ? o : rm ? "off" : "on");
+      })();
+    </script>
+  </head>
+  <body>
+    <main id="main">
+      <!-- S00/S01 is static HTML so the LCP headline paints before any JS (MOTION_SYSTEM 2). Layer order: canvas, scrim, h1. -->
+      <section id="journey" class="track track--pinned scene scene-journey" aria-labelledby="hero-title" style="--track-h: 200vh" data-static-track>
+        <div class="stage">
+          <div class="stage-content" data-stage-content>
+            <div id="journey-still"></div>
+            <div class="hero-scrim" aria-hidden="true"></div>
+            <p class="wordmark" data-intro-corner>SUPPLY CHAIN ORCHESTRA</p>
+            <div class="intro-corner" data-intro-corner><p class="intro-corner__a" data-intro-a></p><p class="intro-corner__b" data-intro-b></p></div>
+            <h1 id="hero-title" class="hero-title wr" data-hero data-scene-heading tabindex="-1"><span class="wr-word">Every</span> <span class="wr-word">product</span> <span class="wr-word">has</span> <span class="wr-word">a</span> <span class="wr-word">journey.</span></h1>
+            <p class="sr-only" id="hero-alt">Animated introduction: one package sits on a horizontal line that stands for the network's sites. Bars rise above the line for what plants deliver to each site and fall below it for what each site sends to cities, until they form one large disc. The area of the bars is tons per year; the two halves are equal because nothing is stored.</p>
+            <div id="journey-portal"></div>
+          </div>
+        </div>
+      </section>
+      <div id="root"></div>
+    </main>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
