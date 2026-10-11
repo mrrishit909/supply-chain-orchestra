@@ -18,7 +18,8 @@ sys.path.insert(0, str(HERE))
 from render_lens_sketch import (chrome_d, net, scrim, sol, svg_head)  # noqa: E402  (importing also re-renders the lens sketches)
 
 nodes, sites, plants = net["demand_nodes"], net["sites"], net["plants"]
-COL_GAP, BAR_GAP, DOCK = 5.0, 1.2, 9.0  # px of ink between columns, bars, and the dock band height
+COL_GAP, BAR_GAP, DOCK = 1.6, 0.5, 4.0  # hairline black gaps; the dock is a 4px seam of no light, never a drawn line
+TINT = {"#FF4C25": "#FFB49A", "#FFB26B": "#FFE6C8", "#A8301A": "#E8805E", "#9A6BFF": "#D9C8FF", "#D2B8FF": "#F1E8FF", "#690DE2": "#A88BFF"}
 
 
 def half_area_left(x, R):
@@ -64,7 +65,7 @@ def bar_path(cx, cy, R, xa, xb, top, inset):
     return "M" + " L".join(f"{x:.2f},{y:.2f}" for x, y in pts) + " Z"
 
 
-def dock(scn, cx, cy, tons_per_px2, palette="orange", hero=None, unmet=None):
+def dock(scn, cx, cy, tons_per_px2, palette="orange", hero=None, unmet=None, bloom=False):
     inb, out = flows(scn)
     open_f = sorted(out, key=lambda f: sites[f]["lon"])
     total = sum(sum(v.values()) for v in out.values()) + (sum(unmet.values()) if unmet else 0)
@@ -72,18 +73,27 @@ def dock(scn, cx, cy, tons_per_px2, palette="orange", hero=None, unmet=None):
     half = math.pi * R * R / 2
     top_c, bot_c = ("#FF7A1F", "#FFC48F") if palette == "orange" else ("#690DE2", "#B48CFF")
     cols_k = ("#FF4C25", "#FFB26B", "#A8301A") if palette == "orange" else ("#9A6BFF", "#D2B8FF", "#690DE2")
-    kd = "".join(f'<linearGradient id="t{k}" gradientUnits="userSpaceOnUse" x1="0" y1="{cy - R}" x2="0" y2="{cy}">'
-                 f'<stop offset="0" stop-color="{c}" stop-opacity=".3"/><stop offset=".55" stop-color="{c}" stop-opacity=".5"/><stop offset="1" stop-color="{c}"/></linearGradient>'
-                 f'<linearGradient id="b{k}" gradientUnits="userSpaceOnUse" x1="0" y1="{cy}" x2="0" y2="{cy + R}">'
-                 f'<stop offset="0" stop-color="{c}"/><stop offset=".45" stop-color="{c}" stop-opacity=".5"/><stop offset="1" stop-color="{c}" stop-opacity=".3"/></linearGradient>'
+    def stops(c):  # offset 0 = the dock, 1 = the rim
+        t = TINT[c]
+        return (f'<stop offset="0" stop-color="{t}" stop-opacity=".12"/><stop offset=".014" stop-color="{t}" stop-opacity="1"/>'
+                f'<stop offset=".09" stop-color="{c}" stop-opacity=".95"/><stop offset=".38" stop-color="{c}" stop-opacity=".58"/>'
+                f'<stop offset=".72" stop-color="{c}" stop-opacity=".26"/><stop offset="1" stop-color="{c}" stop-opacity=".1"/>')
+    kd = "".join(f'<linearGradient id="t{k}" gradientUnits="userSpaceOnUse" x1="0" y1="{cy}" x2="0" y2="{cy - R}">{stops(c)}</linearGradient>'
+                 f'<linearGradient id="b{k}" gradientUnits="userSpaceOnUse" x1="0" y1="{cy}" x2="0" y2="{cy + R}">{stops(c)}</linearGradient>'
                  for k, c in enumerate(cols_k))
+    uid = f"{int(cx)}{int(cy)}{palette[0]}"
+    kd += (f'<filter id="ig{uid}" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="5"/></filter>'
+           f'<filter id="rb{uid}" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="38"/></filter>'
+           f'<linearGradient id="dm{uid}" gradientUnits="userSpaceOnUse" x1="0" y1="{cy - 0.16 * R}" x2="0" y2="{cy + 0.16 * R}">'
+           '<stop offset="0" stop-color="#000"/><stop offset=".42" stop-color="#fff"/><stop offset=".58" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>'
+           f'<mask id="m{uid}"><rect x="{cx - R}" y="{cy - R}" width="{2 * R}" height="{2 * R}" fill="url(#dm{uid})"/></mask>')
     defs = (f'<defs>{kd}<linearGradient id="gt" gradientUnits="userSpaceOnUse" x1="0" y1="{cy - R}" x2="0" y2="{cy}">'
             f'<stop offset="0" stop-color="{top_c}" stop-opacity=".55"/><stop offset="1" stop-color="{bot_c}"/></linearGradient>'
             f'<linearGradient id="gb" gradientUnits="userSpaceOnUse" x1="0" y1="{cy}" x2="0" y2="{cy + R}">'
             f'<stop offset="0" stop-color="{bot_c}"/><stop offset="1" stop-color="#FF4C25" stop-opacity=".8"/></linearGradient>'
             '<pattern id="hz" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'
             '<line x1="0" y1="0" x2="0" y2="6" stroke="#FF4C25" stroke-width="1.4"/></pattern></defs>')
-    g, labels = [defs], []
+    g, labels = [], []
     acc = 0.0
     cols = [(f, sum(out[f].values())) for f in open_f] + ([("unmet", sum(unmet.values()))] if unmet else [])
     for f, t_f in cols:
@@ -101,29 +111,36 @@ def dock(scn, cx, cy, tons_per_px2, palette="orange", hero=None, unmet=None):
                 d = bar_path(cx, cy, R, x1 + inset[0], x2 - inset[1], top, 0)
                 if d:
                     if f == "unmet":
-                        g.append(f'<path d="{d}" fill="url(#hz)" stroke="#FF4C25" stroke-width=".8"/>')
+                        g.append(f'<path d="{d}" fill="url(#hz)" fill-opacity=".85"/>')
                     else:
                         hot = hero and hero[0] == f and key == ((hero[1], 0) if top else (hero[2], 0))
                         g.append(f'<path d="{d}" fill="url(#{"t" if top else "b"}{key[1]})"/>')
-                        if hot:
-                            g.append(f'<path d="{d}" fill="none" stroke="#fff" stroke-width="2"/>')
+                        if hot:  # the hero's bars glow brighter; a 1px 60% edge, no heavy outline
+                            g.append(f'<path d="{d}" fill="#FFE6C8" fill-opacity=".1" stroke="#FFE6C8" stroke-opacity=".45" stroke-width="1"/>')
                 a2 += t
         if f == "unmet":
             g.append(f'<path d="{bar_path(cx, cy, R, xa + COL_GAP / 2, xb - COL_GAP / 2, True, 0)}" fill="none" stroke="#FF4C25" stroke-dasharray="3 3" stroke-width=".8"/>')
         labels.append((f, (xa + xb) / 2, t_f))
         acc = acc_end
-    return "".join(g), R, labels
+    bars = "".join(g)
+    out_ = [defs]
+    if bloom:  # S00/S08 only: a dim bloom of the bars that spills just beyond the rim
+        out_.append(f'<g filter="url(#rb{uid})" opacity=".2">{bars}</g>')
+    out_.append(bars)
+    # soft inner glow along the dock edges (screen), so the seam reads as light falling away, not a drawn line
+    out_.append(f'<g mask="url(#m{uid})" style="mix-blend-mode:screen" opacity=".75"><g filter="url(#ig{uid})">{bars}</g></g>')
+    return "".join(out_), R, labels
 
 
 def site_labels(labels, cy, size=11, min_w=40):
     out = []
     for f, x, t in labels:
         if f != "unmet":
-            out.append(f'<rect x="{x - 4:.1f}" y="{cy - 4:.1f}" width="8" height="8" fill="#B48CFF"/>')
+            out.append(f'<rect x="{x - 2.5:.1f}" y="{cy - 2.5:.1f}" width="5" height="5" fill="#B48CFF"/>')
     for f, x, t in labels:
         name = "UNSERVED" if f == "unmet" else sites[f]["name"].replace(" city", "").upper()
-        out.append(f'<text class="m" x="{x:.1f}" y="{cy - 9:.1f}" font-size="{size}" text-anchor="middle" '
-                   f'style="paint-order:stroke;stroke:#000;stroke-width:4px">{name}</text>')
+        out.append(f'<text class="m" x="{x:.1f}" y="{cy + size + 10:.1f}" font-size="{size}" text-anchor="middle" fill-opacity=".7" '
+                   f'style="paint-order:stroke;stroke:#000;stroke-width:3px;stroke-opacity:.6">{name}</text>')
     return "".join(out)
 
 
@@ -144,18 +161,18 @@ HERO = (3, 0, hero_city)
 for palette in ("orange", "violet"):
     R_D = 580  # G0 D
     tpp = 2 * T / (math.pi * R_D * R_D)
-    body, R, labels = dock(opt, 900, 450, tpp, palette, hero=HERO)
+    body, R, labels = dock(opt, 900, 450, tpp, palette, hero=HERO, bloom=True)
     hx = [x for f, x, t in labels if f == 3][0]
     svg = svg_head(W, H) + body + site_labels(labels, 450)
-    svg += f'<rect x="{hx - 9:.1f}" y="441" width="18" height="18" fill="#FF4C25" stroke="#fff" stroke-width="1.5"/>'
-    svg += f'<text class="m" x="{hx + 16:.1f}" y="478" font-size="12" style="paint-order:stroke;stroke:#000;stroke-width:4px">1 PACKAGE · FORT WORTH → HOUSTON → SAN ANTONIO</text>'
+    svg += f'<rect x="{hx - 8:.1f}" y="442" width="16" height="16" fill="#FF4C25" stroke="#FFE6C8" stroke-width="1"/>'
+    svg += f'<text class="m" x="{hx + 16:.1f}" y="503" font-size="12" style="paint-order:stroke;stroke:#000;stroke-width:4px">1 PACKAGE · FORT WORTH → HOUSTON → SAN ANTONIO</text>'
     svg += scrim(0, 700, 560, 900) + chrome_d(W, H, ["Every product", "has a journey."], 92, 96, 660, CHIP, RIGHT)
     (HERE / f"dock-s00-d{'' if palette == 'orange' else '-violet'}.svg").write_text(svg + "</svg>")
 
 # M G0: R 540 (diameter 1.28 x 844), centre (195, 400); only the middle columns are in frame
 Wm, Hm = 390, 844
 tpp_m = 2 * T / (math.pi * 510 * 510)
-body, R, labels = dock(opt, 195, 270, tpp_m, hero=HERO)
+body, R, labels = dock(opt, 195, 270, tpp_m, hero=HERO, bloom=True)
 svg = svg_head(Wm, Hm) + body + site_labels(labels, 270, 10)
 svg += scrim(0, Wm, 470, 740, horizontal=False)
 svg += "".join(f'<text class="s" x="16" y="{575 + i * 42}" font-size="40">{t}</text>' for i, t in enumerate(["Every product", "has a journey."]))

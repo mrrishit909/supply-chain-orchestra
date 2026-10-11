@@ -50,7 +50,7 @@ Every value here is binding for the frontend engineer. A deviation needs a writt
    - Bar colour is the commodity and never changes during travel. Map ribbon widths **crossfade** (200ms) and never tween, because an intermediate width would be a flow that no solution has.
 5. **Status before shape.** On a live solve, the status word changes first (200ms), then the geometry moves. An `INFEASIBLE` status never shows bars.
 6. **One luminous form at a time:**
-   - In S00 and S08 it is the giant disc plus its dock glow (22%).
+   - In S00 and S08 it is the giant disc, its seam glow, and its rim bloom (20%).
    - From S01 to THE DESK it is the disc, the map or the S06 pair at scene size. In S02 it dims to 20%, and in S07 to 15%, behind the cards.
 7. **Slow structure, quick data.** Camera moves take 800-1200ms or are scrubbed. Re-partitions take 1200ms on scroll steps and 800ms on DESK solves. Crossfades take 200ms, numerals 600ms.
 8. **Keyed continuity:**
@@ -156,11 +156,11 @@ Format for each entry: **Trigger**, **Initial → End**, **Duration / Easing**, 
 | 0 | Black. Layer order is **canvas, then scrim, then h1**. The left scrim (D) or bottom scrim (T/M) is present at full strength from frame 0, black on black. `h1[data-hero]` sits **above** the scrim and is visible from first paint as ghost text (0.55, blur 12px). SKIP INTRO is visible (bottom right) | n/a |
 | 200-500 | Corner labels fade in: `SUPPLY CHAIN ORCHESTRA` top-left; the status line top-right | 300ms premium |
 | 300-600 | **The package.** One orange square (18px D) appears at the Houston column centre on the (not yet visible) dock: scale 0.85 → 1, opacity 0 → 1 | 300ms premium |
-| 500-900 | **The line.** The dock line appears **at its full G0 length** (opacity 0 → 1; no extension from a point) with the closed-candidate hollow squares on it. From this frame on, the disc's diameter is giant | 400ms premium |
+| 500-900 | **The line.** Before any bar exists, the seam is shown once as a 1px `#FFE6C8` hairline at 30% **at its full G0 length** (opacity 0 → 1; no extension from a point) with the closed-candidate hollow squares on it. It fades out (400ms) as the bars open and their lit inner edges take over, so at rest the dock is only an absence of light (VISUAL_DESIGN criterion 21). From this frame on, the disc's diameter is giant | 400ms premium |
 | 900-1500 | **The sites.** The 8 open-site squares fill violet, west to east, 60ms stagger | 200ms each, smooth |
 | 1500-3300 | **The dock opens.** Each column's bars extend from the dock to their chord ends (top up, bottom down) via the open factor `o`. Columns start in order of distance from the hero column (the hero's first), 0-800ms stagger; each column opens over 1000ms | 1000ms symmetric per column |
 | 3300-3500 | The hero's two bars take their 1.5px white outline; site labels fade in | 200ms smooth |
-| 3300-3700 | The dock glow (1/4-res canvas, CSS blur 20px) fades 0 → 22% | 400ms smooth |
+| 3300-3700 | The seam glow (75%) and the rim bloom (0 → 20%) fade in; both canvases are drawn once, here | 400ms smooth |
 | 3500-3800 | The hero caption fades in on the dock | 300ms premium |
 | 3600-4300 | The headline sharpens word by word (5.2, time-based, 80ms stagger). The scrim does not animate | 700ms premium |
 | 4200-4600 | Nav enters (translateY 16px → 0, opacity). The chip and the commodity legend appear bottom-left | 400ms premium |
@@ -448,11 +448,11 @@ It is triggered by `prefers-reduced-motion: reduce` **or** the MOTION OFF toggle
 | R3F + three.js (MASTER_PLAN default) | About 150-180 KB gz for flat 2D paths | Rejected: nothing here is 3D (ED #19, #21, #24 reasoning) |
 | Raw WebGL2 | A path tessellator for variable-width bars and strands, plus hatch patterns, for about 1,200 primitives | Rejected: Canvas2D already handles this count within budget (precedent P04, ED #21), and WebGL would add a fallback path |
 | SVG / DOM | About 1,200 nodes whose `d` changes every frame during the unfold and re-partitions | Rejected for the stage (per-frame path parsing and paint). Kept for the S02 card visuals and the S07 mini-visuals |
-| **Canvas2D** | One main canvas plus one 1/4-res glow canvas; `Path2D` cached at rest; `setTransform` for camera-only frames | **Chosen** |
+| **Canvas2D** | One main canvas plus two static 1/4-res glow canvases (seam glow, rim bloom); `Path2D` cached at rest; `setTransform` for camera-only frames | **Chosen** |
 
-- **Bars** are filled paths with a per-commodity vertical `createLinearGradient` (3 gradients per frame per half, rebuilt only when `R` or `c` changes).
+- **Bars** are filled paths with a per-commodity, per-half vertical `createLinearGradient` of six stops (VISUAL_DESIGN section 0). **Gradients are cached:** 6 objects (3 commodities x 2 halves) keyed by `(cy, R)` rounded to 0.5px, rebuilt only when the camera or a scenario radius changes (at most once per frame during a camera move, never per bar). Hero brightening is one extra translucent fill on 2 paths. No per-bar gradient is ever created.
 - **Hatch** is a 6x6 `CanvasPattern` (`createPattern`) created once.
-- **The dock glow** (S00, S08): the first 18% of every bar from the dock, drawn once into a 1/4-res canvas element with CSS `filter: blur(20px)` and opacity 0.22, composited by the browser; redrawn only after an opening completes.
+- **Seam glow** (every disc scene) and **rim bloom** (S00 and S08 only): two 1/4-res canvas elements composited by the browser (`filter: blur(5px)` + `mix-blend-mode: screen` at 75%, and `blur(38px)` at 20% under the stage). Each is redrawn once after an opening, re-partition or camera settle, never during a transition: during a transition the seam glow holds its last frame at 40% and catches up on landing (200ms crossfade); the rim bloom is hidden outside S00/S08.
 - **The map:** 500 candidate arcs as one cached `Path2D` (24 points each); strands as per-key paths; cities as one batched path of arcs (100); site and plant squares.
 - **Picking:** at rest, bars are picked by x within the half (binary search on slot edges) and y inside the chord; strands by a coarse grid of their sampled points; cities and squares by distance. No GPU picking.
 - **The solver:** highs@1.15.3 (HiGHS-wasm, about 1.21 MB gz, ED #21) in a module worker, created at S03b entry (or a DESK deep link), prefetched at idle once S03a p > 0.5. The worker receives LP text and returns the column values by name, the status string and the time. One worker; a cancel terminates it.
@@ -465,7 +465,9 @@ It is triggered by `prefers-reduced-motion: reduce` **or** the MOTION OFF toggle
 | Canvas DPR cap | 2 | 1.5 | 1 |
 | Paths per transition frame | about 330 bars, or 330 strands + 500 arcs (one cached path) | same | same |
 | Transition setup (layout of a record) | 2ms or less | 4ms or less | same |
-| Glow | Drawn once per S00/S08 opening | same | off |
+| Cached gradients | 6 per camera state; rebuild 0.2ms or less | same | same |
+| Seam glow | Redrawn once per settle at 1/4 res, 1.5ms or less | same, 3ms or less | off (the seam's own gradient remains) |
+| Rim bloom | Drawn once per S00/S08 opening at 1/4 res, 3ms or less | same, 6ms or less | off |
 | Re-partition | 1200 / 800ms | same | 400ms |
 | Unfold | scrubbed | same | scrubbed, strands drawn without gradients |
 | Solve | off the main thread; the measured median in Node was 60ms (max 1,176ms); browser times are measured, not assumed | same | same |
@@ -533,5 +535,5 @@ Playwright runs against `npm run build && npm run preview` at D, T and M.
     - A debug hook reports the dock line at full G0 length from 500ms into S00 to its end, never decreasing, and `R ≥ G0 R` at S00 end and S08 p 0.75.
     - At the S00 end state and S08 p 0.75, a screenshot check at D, T and M finds disc-edge pixels (lit bar ends with black beyond, radially) outside every scrim rectangle: the D left arc, the T bottom-right arc, the M bottom arc.
     - The evidence harness writes `artifacts/evidence/<stage>/p01-p05-vs-p07-open-close.png`: S00 frames (0.6s, 1.5s, 2.5s, end) and S08 frames (p 0.3, 0.75, 0.9) of all six sites, at D and M, as 240px-tall tiles, with the real P03 S00 end frame next to P07's, in colour and greyscale (the design-time check is `design/sketches/p03-p07-pair.png`, VISUAL_DESIGN section 2).
-    - An independent QA reviewer confirms that no P07 frame shows any of these: a stroked ring; nodes or ticks on a circumference; chords; wedges, spokes or petals; a smooth glow disc; a small orb or marker; square cells, a grid or a limb; a rising horizon arc; dots or grains; horizontal stripes; a bowed-arc map; particles along lanes. Rejection criteria 2, 3 and 19 apply. The design-time version of this sheet is `design/sketches/distinctness-sheet.png`.
+    - An independent QA reviewer confirms that no P07 frame shows any of these: a stroked ring; nodes or ticks on a circumference; chords; wedges, spokes or petals; a smooth glow disc; a small orb or marker; square cells, a grid or a limb; a rising horizon arc; dots or grains; horizontal stripes; a bowed-arc map; particles along lanes; flat-swatch bars, drawn separators or a drawn dock line at rest (criterion 21, chart-library look). Rejection criteria 2, 3 and 19 apply. The design-time version of this sheet is `design/sketches/distinctness-sheet.png`.
 16. **Frame pacing** (evidence harness). Scroll recordings at D and M report p50/p95 frame times on a stated device and browser, including the S00 opening, one S03a re-partition, the S04 unfold and one DESK solve. These are recorded, never estimated.
