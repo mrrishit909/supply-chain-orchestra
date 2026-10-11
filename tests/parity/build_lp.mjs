@@ -52,7 +52,7 @@ export function buildLp(pIn) {
   }
   for (let pp = 0; pp < P; pp++) for (let k = 0; k < K; k++) row(`sup${pp}_${k}`, [...Array.from({ length: F }, (_, f) => [`y${pp}_${f}_${k}`, 1]), ...(rl ? [[`sp${pp}_${k}`, -1]] : [])], '<=', sup[pp][k]);
   if (LINK) for (let a = 0; a < A; a++) for (let k = 0; k < K; k++) row(`lnk${a}_${k}`, [[`x${a}_${k}`, 1], [`z${oa.site[a]}`, -dem[oa.demand[a]][k]]], '<=', 0);
-  row('mxo', [...Array.from({ length: F }, (_, f) => [`z${f}`, 1]), ...(rl ? [['sm', -1]] : [])], '<=', p.max_open_sites);
+  row('mxo', [...Array.from({ length: F }, (_, f) => [`z${f}`, 1]), ...(rl ? [['sm', -1]] : [])], p.open_exactly ? '=' : '<=', p.max_open_sites);
   for (const f of [...p.closed_sites].sort((a, b) => a - b)) row(`cls${f}`, [[`z${f}`, 1]], '=', 0);
   if (p.fixed_open !== null && p.fixed_open !== undefined) { const fo = new Set(p.fixed_open); for (let f = 0; f < F; f++) row(`fix${f}`, [[`z${f}`, 1]], '=', fo.has(f) ? 1 : 0); }
   out.push('Bounds');

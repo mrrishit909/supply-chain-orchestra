@@ -11,7 +11,7 @@ This repository currently holds the data and engine phases (01-13): problem, sou
 ```
 uv sync
 uv run python -m pipelines.run_all        # download Census files (if absent), build, solve, Monte Carlo, write + validate artifacts (~20 s)
-uv run pytest                              # 59 tests incl. slow ones (~50 s)
+uv run pytest                              # 74 tests incl. slow ones (~60 s)
 cd tests/parity && npm ci && node build_lp.mjs --report ../../artifacts/evidence/parity_report.json   # HiGHS-wasm parity
 ```
 

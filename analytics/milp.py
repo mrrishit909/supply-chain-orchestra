@@ -9,7 +9,7 @@ Model (indices: z site f, x out-arc a for commodity k, y plant p -> site f for c
   flw[f,k]  sum_p y[p,f,k] - sum_{a in arcs(f)} x[a,k] = 0
   cap[f]    sum_k w_k sum_{a in arcs(f)} x[a,k] - Cap_f z_f (- so_f) <= 0
   sup[p,k]  sum_f y[p,f,k] (- sp[p,k]) <= Supply[p,k]
-  mxo       sum_f z_f (- sm) <= max_open_sites
+  mxo       sum_f z_f (- sm) <= max_open_sites   (= when open_exactly: exactly k sites, or k + sm when relaxed)
   cls[f]    z_f = 0 for closed sites;  fix[f]  z_f = 0|1 when a design is locked;  Bounds: x[a,k] = 0 on closed lanes
 """
 from __future__ import annotations
@@ -28,7 +28,7 @@ INF = highspy.kHighsInf
 OPTIONS = {"mip_rel_gap": 0.0, "mip_abs_gap": 1e-6, "threads": 1, "random_seed": 0, "output_flag": False, "time_limit": 60.0}
 PENALTY = {"unmet_usd_ton": 6000.0, "capacity_usd_unit": 2500.0, "supply_usd_ton": 3500.0, "open_sites_usd_site": 30_000_000.0}
 LINK_ARCS = True  # per-arc linking x[a,k] <= demand[d,k] z[f]: a tighter relaxation, measured faster than the aggregate capacity row alone
-DEFAULT_PARAMS = {"demand_scale": 1.0, "freight_scale": 1.0, "fixed_cost_scale": 1.0, "capacity_scale": 1.0, "max_open_sites": 20,
+DEFAULT_PARAMS = {"demand_scale": 1.0, "freight_scale": 1.0, "fixed_cost_scale": 1.0, "capacity_scale": 1.0, "max_open_sites": 14, "open_exactly": False,
                   "closed_sites": [], "closed_lanes": [], "fixed_open": None, "relax": False}
 
 
@@ -119,7 +119,7 @@ class Model:
             for a in range(self.n_arc):
                 for k in range(self.K):
                     R.append((f"lnk{a}_{k}", [(f"x{a}_{k}", 1.0), (f"z{oa['site'][a]}", -self.dem[oa['demand'][a]][k])], "<=", 0.0))
-        R.append(("mxo", [(f"z{f}", 1.0) for f in range(self.F)] + ([("sm", -1.0)] if rl else []), "<=", float(self.p["max_open_sites"])))
+        R.append(("mxo", [(f"z{f}", 1.0) for f in range(self.F)] + ([("sm", -1.0)] if rl else []), "=" if self.p["open_exactly"] else "<=", float(self.p["max_open_sites"])))
         for f in self.p["closed_sites"]:
             R.append((f"cls{f}", [(f"z{f}", 1.0)], "=", 0.0))
         if self.p["fixed_open"] is not None:

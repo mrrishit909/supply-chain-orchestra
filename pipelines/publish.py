@@ -10,14 +10,16 @@ import numpy as np
 from analytics import milp
 from analytics.milp import DEFAULT_PARAMS, OPTIONS, PENALTY, Model, full_params, solve
 from analytics.network import COMMODITIES, build_network, road_mi
+from analytics import sweep as sweep_mod
+from analytics import words as W
 from analytics.robustness import run_mc
-from analytics.scenarios import package, sha
+from analytics.scenarios import fd_checks, hauls, package, sha
 from pipelines.clean import EXCLUDED_STATES, load_places
-from pipelines.common import MANIFESTS, PUBLIC, SEED, dumps
+from pipelines.common import MANIFESTS, PUBLIC, ROOT, SEED, dumps
 
 LEGACY = [0, 1, 2, 3, 4, 5]  # the six sites in the six largest host cities (sites are sorted by host population)
 STORM_CENTER, STORM_RADIUS_MI = "Houston city", 350.0
-TAGS_NET = {"place_fields": "OBSERVED", "road_mi": "DERIVED", "demand_tons": "SYNTHETIC", "sites": "SYNTHETIC", "plants": "SYNTHETIC", "costs": "SYNTHETIC"}
+TAGS_NET = {"place_fields": "OBSERVED", "road_mi": "DERIVED", "projection": "DERIVED", "xy": "DERIVED", "demand_tons": "SYNTHETIC", "sites": "SYNTHETIC", "plants": "SYNTHETIC", "costs": "SYNTHETIC"}
 ATTR = ("Source: U.S. Census Bureau, Population Estimates Program (PEP) 2025 and Gazetteer Files 2026. This product uses Census Bureau data but is not endorsed or "
         "certified by the Census Bureau. Network, costs and all solver and Monte Carlo outputs are SYNTHETIC.")
 
@@ -71,6 +73,10 @@ def vectors(net: dict, pre: list[dict]) -> tuple[list[dict], str]:
     for i in range(4):
         cl = sorted(int(v) for v in rng.choice(F, size=int(rng.integers(1, 4)), replace=False))
         items.append((f"closure:{i:02d}", "closure", {"closed_sites": cl, "relax": i % 2 == 1, "demand_scale": round(float(rng.uniform(0.9, 1.15)), 2)}))
+    for k in (1, 2, 4, 6, 8, 10, 12, 14):
+        items.append((f"sweep:exactly:{k:02d}", "sweep", {"max_open_sites": k, "open_exactly": True}))
+    items.append(("sweep:limit:01:relaxed", "sweep", {"max_open_sites": 1, "relax": True}))
+    items.append(("sweep:exactly:02:relaxed", "sweep", {"max_open_sites": 2, "open_exactly": True, "relax": True}))
     out, text0 = [], ""
     for vid, kind, prm in items:
         m = Model(net, prm)
@@ -95,6 +101,16 @@ def vectors(net: dict, pre: list[dict]) -> tuple[list[dict], str]:
     return out, text0
 
 
+def relaxation_words(net: dict, by: dict) -> dict:
+    base = float(sum(sum(d["demand_tons"]) for d in net["demand_nodes"]))
+    ex = []
+    for sid in ("relaxed_supply", "relaxed_capacity", "storm_legacy", "storm_optimized", "relaxed_sites"):
+        s = by[sid]
+        for fam, fields in W.families(s["relaxation"], net, base, int(s["params"]["max_open_sites"])):
+            ex.append({"scenario": sid, "family": fam, "fields": fields, "sentence": W.render(fam, fields)})
+    return {"templates": W.TEMPLATES, "order": W.ORDER, "rules": W.RULES, "examples": ex}
+
+
 def main() -> None:
     t0 = time.time()
     man = json.loads((MANIFESTS / "census_extract.json").read_text())
@@ -111,6 +127,8 @@ def main() -> None:
         t = time.time()
         sols.append(package(net, p["id"], p["label"], p["description"], p["kind"], p["params"]))
         tm[p["id"]] = round(time.time() - t, 2)
+    fd_checks(net, next(s for s in sols if s["id"] == "optimized"))
+    sw = sweep_mod.run(net)
     mc = run_mc(net, {"legacy": LEGACY, "optimized": opt})
     tm["monte_carlo"] = round(time.time() - t0, 1)
     vec, lp_text = vectors(net, pre)
@@ -120,6 +138,7 @@ def main() -> None:
     sizes = {"columns": len(cols), "rows": len(rows), "binaries": F, "nonzeros": nnz}
     by = {s["id"]: s for s in sols}
     S = {"schema_version": "v1", "generated_at": gen_at}
+    by_pre = by
     tot_dem = float(sum(sum(d["demand_tons"]) for d in net["demand_nodes"]))
 
     # ---- quality
@@ -167,12 +186,16 @@ def main() -> None:
                            "note": "HiGHS orders columns by first appearance in the file; always map solution values back by column name."},
              "solver": {"options": OPTIONS, "highs_python": f"highspy {metadata.version('highspy')} (HiGHS {milp.HIGHS_VERSION})", "highs_browser": "highs@1.15.3 (HiGHS-wasm)",
                         "status_strings": {"optimal": "Optimal", "infeasible": "Infeasible"},
+                        "browser": {"time_limit_s": 10, "extra_status_strings": ["Time limit reached"], "warmup_preset": "optimized",
+                                    "time_limit_rule": "Pass time_limit 10 to highs@1.15.3 in the worker. Measured with this build: on a time-out Status is 'Time limit reached'; ObjectiveValue is Infinity when no incumbent exists (take the error path) and the incumbent objective otherwise, with Columns holding the incumbent. highs-js returns no MIP gap, so the gap is NOT available from the solve: show 'GAP UNKNOWN' unless the params equal a preset, then (objective - lp_relaxation_bound_usd) / objective from that preset. A time-limited result is never labelled Optimal and never compared for parity."},
                         "browser_note": "Python executed here; the browser build is exercised by tests/parity (node, same wasm build). Solve time in the browser is machine-dependent and reported in docs/TESTING.md."},
              "penalties": {**PENALTY, "note": "Penalties are modelling devices for the relaxation, not costs; they are reported separately from operating cost."},
+             "relaxation_words": relaxation_words(net, by_pre),
              "defaults": DEFAULT_PARAMS, "controls": controls(net), "presets": pre, "sizes": sizes}
 
     # ---- solutions
-    solutions = {**S, "tags": {"scenarios": "SYNTHETIC", "routes": "SYNTHETIC", "duals": "SYNTHETIC"}, "flow_precision": "tons rounded to 3 decimals; flows below 0.0005 t omitted",
+    solutions = {**S, "tags": {"scenarios": "SYNTHETIC/SIMULATED", "routes": "SYNTHETIC/SIMULATED", "journeys": "SYNTHETIC/SIMULATED", "duals": "DERIVED"},
+                 "journeys_note": "journeys = [plant, site, node, commodity, tons]: outbound tons of commodity k from site f are attributed to plants in proportion to f's inbound tons of k (computed from the 3-decimal route lists, rows below 0.0005 t omitted). hero = the largest packaged-goods journey with both legs >= 100 road-equivalent miles (ties: lowest plant, site, node). Tons are rounded per row, so row sums match routes within 0.01 t per (site, node, commodity).", "flow_precision": "tons rounded to 3 decimals; flows below 0.0005 t omitted",
                  "duals_note": "Shadow prices and demand prices are row duals of the LP with the binaries fixed at the MILP optimum: they are conditional on that open set and valid only for small right-hand-side changes. Absent for relaxed scenarios.",
                  "scenarios": sols}
 
@@ -184,6 +207,10 @@ def main() -> None:
                   "draws": mc["draws"], "results": mc["results"], "summary": mc["summary"], "histograms": mc["histograms"], "site_criticality": mc["site_criticality"],
                   "storm_exemplar": {"epicenter": STORM_CENTER, "radius_mi": STORM_RADIUS_MI, "closed_sites": storm_sites(net)}}
 
+    sweep_art = {**S, "tags": {"series": "SYNTHETIC/SIMULATED", "hauls": "DERIVED"},
+                 "note": "k = 1..14, other params default. Series 'limit' sets max_open_sites = k (flat above the optimum's 8 sites); series 'exactly' also sets open_exactly (the mxo row is =). Infeasible k carry a relaxed record (relax = true) with the elastic report and words. Hauls are tons-weighted road-equivalent miles of the inbound and outbound legs.",
+                 "series": sw}
+
     # ---- vectors
     tv = {**S, "tags": {"vectors": "SYNTHETIC"},
           "note": "Rebuild the LP from network.json + model.json using vector.params, hash the text (SHA-256 of UTF-8) and compare, then solve with the options below. Compare status and objective_usd; components, open_sites and relaxed_groups are informative.",
@@ -192,20 +219,47 @@ def main() -> None:
     # ---- facts
     sv = by["legacy"]["objective_usd"] - by["optimized"]["objective_usd"]
     sm_ = mc["summary"]
+    osol = by["optimized"]
+    hero_ = osol["hero"]
+    hn = lambda g: g["short_name"]
+    prices = np.array(osol["demand_price_usd_ton"])
+    bins = {"scenario": "optimized", "unit": "USD per ton", "tag": "DERIVED", "commodities": [{"id": c["id"], "edges": [round(float(v), 2) for v in np.quantile(prices[:, k], [0, .2, .4, .6, .8, 1])]} for k, c in enumerate(COMMODITIES)]}
+    sup_tot = float(sum(sum(p["supply_tons"]) for p in net["plants"]))
+    rep_f = ROOT / "artifacts/evidence/parity_report.json"
     facts = [("demand_nodes", "Demand nodes", D, "places", "OBSERVED", "network.json"), ("candidate_sites", "Candidate sites", F, "sites", "SYNTHETIC", "network.json"),
-             ("total_demand_tons", "Total annual demand", round(tot_dem), "t/yr", "SYNTHETIC", "network.json"), ("optimized_cost_usd", "Optimized annual cost", by["optimized"]["objective_usd"], "USD/yr", "SYNTHETIC", "solutions.json"),
-             ("legacy_cost_usd", "Legacy footprint annual cost", by["legacy"]["objective_usd"], "USD/yr", "SYNTHETIC", "solutions.json"), ("saving_vs_legacy_usd", "Saving of optimized vs legacy", round(sv, 2), "USD/yr", "SYNTHETIC", "solutions.json"),
-             ("saving_vs_legacy_pct", "Saving of optimized vs legacy", round(100 * sv / by["legacy"]["objective_usd"], 2), "%", "SYNTHETIC", "solutions.json"), ("optimized_open_sites", "Sites opened by the optimum", len(opt), "sites", "SYNTHETIC", "solutions.json"),
-             ("lp_gap_pct", "LP relaxation bound below MILP optimum", round(100 * (1 - by["optimized"]["lp_relaxation_bound_usd"] / by["optimized"]["objective_usd"]), 3), "%", "SYNTHETIC", "solutions.json"),
+             ("total_demand_tons", "Total annual demand", round(tot_dem), "t/yr", "SYNTHETIC", "network.json"), ("optimized_cost_usd", "Optimized annual cost", by["optimized"]["objective_usd"], "USD/yr", "SYNTHETIC/SIMULATED", "solutions.json"),
+             ("legacy_cost_usd", "Legacy footprint annual cost", by["legacy"]["objective_usd"], "USD/yr", "SYNTHETIC/SIMULATED", "solutions.json"), ("saving_vs_legacy_usd", "Saving of optimized vs legacy", round(sv, 2), "USD/yr", "SYNTHETIC/SIMULATED", "solutions.json"),
+             ("saving_vs_legacy_pct", "Saving of optimized vs legacy", round(100 * sv / by["legacy"]["objective_usd"], 2), "%", "SYNTHETIC/SIMULATED", "solutions.json"), ("optimized_open_sites", "Sites opened by the optimum", len(opt), "sites", "SYNTHETIC/SIMULATED", "solutions.json"),
+             ("lp_gap_pct", "LP relaxation bound below MILP optimum", round(100 * (1 - by["optimized"]["lp_relaxation_bound_usd"] / by["optimized"]["objective_usd"]), 3), "%", "SYNTHETIC/SIMULATED", "solutions.json"),
              ("mc_draws", "Monte Carlo draws", cfg["draws"], "draws", "SIMULATED", "robustness.json"), ("mc_service_mean_optimized", "Mean service level, optimized, disrupted", round(sm_["optimized"]["service_level"]["mean"], 4), "share", "SYNTHETIC/SIMULATED", "robustness.json"),
              ("mc_service_mean_legacy", "Mean service level, legacy, disrupted", round(sm_["legacy"]["service_level"]["mean"], 4), "share", "SYNTHETIC/SIMULATED", "robustness.json"),
              ("mc_cvar95_optimized_usd", "CVaR95 adjusted cost, optimized", round(sm_["optimized"]["adjusted_cost"]["cvar95"], 2), "USD/yr", "SYNTHETIC/SIMULATED", "robustness.json"),
              ("mc_cvar95_legacy_usd", "CVaR95 adjusted cost, legacy", round(sm_["legacy"]["adjusted_cost"]["cvar95"], 2), "USD/yr", "SYNTHETIC/SIMULATED", "robustness.json"),
              ("model_columns", "Model columns", sizes["columns"], "columns", "SYNTHETIC", "model.json"), ("model_rows", "Model rows", sizes["rows"], "rows", "SYNTHETIC", "model.json"),
              ("parity_vectors", "Browser parity vectors", len(vec), "vectors", "SYNTHETIC", "solver_test_vectors.json")]
-    facts_a = {**S, "tags": {"facts": "SYNTHETIC"}, "facts": [{"id": i, "label": l, "value": v, "unit": u, "tag": t, "source": s} for i, l, v, u, t, s in facts]}
+    SS = "SYNTHETIC/SIMULATED"
+    extra = []
+    for sid, s in by.items():
+        if s["status"] == "Optimal":
+            h = hauls(net, s["routes_out"], s["routes_in"])
+            extra += [(f"haul_in_mi_{sid}", f"Inbound haul, {sid}", h["haul_in_mi"], "road-equivalent mi (tons-weighted)", SS, "solutions.json"), (f"haul_out_mi_{sid}", f"Outbound haul, {sid}", h["haul_out_mi"], "road-equivalent mi (tons-weighted)", SS, "solutions.json")]
+            if s["kind"] == "design":
+                extra.append((f"cost_per_ton_usd_{sid}", f"Cost per ton, {sid}", round(s["objective_usd"] / s["total_demand_tons"], 4), "USD/t", SS, "solutions.json"))
+    extra += [("plant_supply_total_tons", "Total plant supply", round(sup_tot), "t/yr", "SYNTHETIC", "network.json"), ("demand_over_supply", "Demand / plant supply", round(tot_dem / sup_tot, 4), "ratio", "SYNTHETIC", "network.json"),
+              ("hero_plant", "Hero journey plant", hn(net["plants"][hero_["plant"]]), "", SS, "solutions.json"), ("hero_site", "Hero journey site", hn(net["sites"][hero_["site"]]), "", SS, "solutions.json"),
+              ("hero_node", "Hero journey city", hn(net["demand_nodes"][hero_["node"]]), "", SS, "solutions.json"), ("hero_tons", "Hero journey tons", hero_["tons"], "t/yr", SS, "solutions.json"),
+              ("hero_in_mi", "Hero inbound leg", hero_["in_mi"], "road-equivalent mi", "DERIVED", "network.json"), ("hero_out_mi", "Hero outbound leg", hero_["out_mi"], "road-equivalent mi", "DERIVED", "network.json"),
+              ("mc_full_service_legacy", "Draws with full service, legacy", int(sum(1 for v in mc["results"]["legacy"]["service_level"] if v >= 0.9999)), "draws", SS, "robustness.json"),
+              ("mc_full_service_optimized", "Draws with full service, optimized", int(sum(1 for v in mc["results"]["optimized"]["service_level"] if v >= 0.9999)), "draws", SS, "robustness.json"),
+              ("optimized_lp_sha256_prefix", "LP text SHA-256 prefix, optimized", osol["lp_text_sha256"][:12], "", "SYNTHETIC", "solver_test_vectors.json")]
+    if rep_f.exists():
+        ps = json.loads(rep_f.read_text())["summary"]
+        extra += [("parity_vectors_run", "Parity vectors run in HiGHS-wasm", ps["vectors"], "vectors", "SYNTHETIC", "artifacts/evidence/parity_report.json"), ("parity_failures", "Parity failures", ps["failures"], "vectors", "SYNTHETIC", "artifacts/evidence/parity_report.json"),
+                  ("parity_wasm_ms_median", "HiGHS-wasm median solve (node)", ps["wasm_ms_median"], "ms", "SYNTHETIC", "artifacts/evidence/parity_report.json"), ("parity_wasm_ms_max", "HiGHS-wasm max solve (node)", ps["wasm_ms_max"], "ms", "SYNTHETIC", "artifacts/evidence/parity_report.json")]
+    facts += extra
+    facts_a = {**S, "tags": {"facts": "SYNTHETIC/SIMULATED", "demand_price_bins": "DERIVED"}, "demand_price_bins": bins, "facts": [{"id": i, "label": l, "value": v, "unit": u, "tag": t, "source": s} for i, l, v, u, t, s in facts]}
 
-    names = ["meta", "quality", "network", "model", "solutions", "robustness", "solver_test_vectors", "facts"]
+    names = ["meta", "quality", "network", "model", "solutions", "robustness", "sweep", "solver_test_vectors", "facts"]
     meta = {**S, "tags": {"sources": "OBSERVED", "sizes": "SYNTHETIC"}, "project": "07-supply-chain-orchestra", "tagline": "Every Product Has a Journey", "seed": SEED,
             "sources": [{"id": "gazetteer", "name": "U.S. Census Bureau, Gazetteer Files 2026, places", "url": man["gaz.zip"]["url"], "vintage": "2026", "retrieved_at_utc": man["gaz.zip"]["fetched_at_utc"], "sha256": man["gaz.zip"]["sha256"],
                          "bytes": man["gaz.zip"]["bytes"], "use": "internal-point coordinates, GEOID, FUNCSTAT", "tag": "OBSERVED"},
@@ -216,7 +270,7 @@ def main() -> None:
                             "Monte Carlo outcomes are SIMULATED, evaluated for fixed designs; the design is not optimised against disruptions.", "Duals are conditional on the optimal open set."],
             "sizes": {"demand_nodes": D, "candidate_sites": F, "plants": len(net["plants"]), "commodities": 3, "out_arcs": len(oa["site"]), "columns": sizes["columns"], "rows": sizes["rows"], "binaries": F},
             "artifacts": {"files": [f"{n}.json" for n in names]}}
-    arts = {"meta": meta, "quality": quality, "network": network, "model": model, "solutions": solutions, "robustness": robustness, "solver_test_vectors": tv, "facts": facts_a}
+    arts = {"meta": meta, "quality": quality, "network": network, "model": model, "solutions": solutions, "robustness": robustness, "sweep": sweep_art, "solver_test_vectors": tv, "facts": facts_a}
     PUBLIC.mkdir(parents=True, exist_ok=True)
     for n, a in arts.items():
         (PUBLIC / f"{n}.json").write_text(dumps(a) + "\n")

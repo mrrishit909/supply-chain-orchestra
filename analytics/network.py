@@ -12,6 +12,7 @@ Rules (all documented in docs/DATA_CONTRACTS.md; every number below is a SYNTHET
 from __future__ import annotations
 
 import math
+import re
 
 import numpy as np
 import polars as pl
@@ -32,6 +33,30 @@ COMMODITIES = [
     {"id": "cold", "label": "Cold chain", "tons_per_1000_pop": 4.0, "rate_in_usd_ton_mi": 0.20, "rate_out_usd_ton_mi": 0.60, "handling_usd_ton": 22.0, "capacity_units_per_ton": 1.6},
     {"id": "bulk", "label": "Bulky goods", "tons_per_1000_pop": 22.0, "rate_in_usd_ton_mi": 0.09, "rate_out_usd_ton_mi": 0.25, "handling_usd_ton": 14.0, "capacity_units_per_ton": 0.8},
 ]
+
+
+PROJECTION = {"name": "albers_conic_equal_area", "parallels": [29.5, 45.5], "origin": [37.5, -96.0], "earth_radius": 1,
+              "convention": "unit sphere; x east, y north (screen clients flip y); x = rho sin(theta), y = rho0 - rho cos(theta), n = (sin p1 + sin p2)/2, C = cos^2 p1 + 2 n sin p1, rho = sqrt(C - 2 n sin lat)/n, theta = n (lon - lon0); rounded to 6 decimals"}
+_SUFFIX = re.compile(r" (city and borough|city|town|village|borough|municipality|\(balance\)|metropolitan government.*|metro government.*|urban county)$")
+
+
+def short_name(name: str) -> str:
+    """Display name: the Census LSAD suffix removed ('Fort Worth city' -> 'Fort Worth'). Applied repeatedly, e.g. 'X city (balance)'."""
+    prev = None
+    while prev != name:
+        prev, name = name, _SUFFIX.sub("", name)
+    return name
+
+
+def albers(lat: float, lon: float) -> tuple[float, float]:
+    p1, p2 = (math.radians(v) for v in PROJECTION["parallels"])
+    lat0, lon0 = (math.radians(v) for v in PROJECTION["origin"])
+    n = (math.sin(p1) + math.sin(p2)) / 2
+    c = math.cos(p1) ** 2 + 2 * n * math.sin(p1)
+    rho0 = math.sqrt(c - 2 * n * math.sin(lat0)) / n
+    rho = math.sqrt(c - 2 * n * math.sin(math.radians(lat))) / n
+    th = n * (math.radians(lon) - lon0)
+    return round(rho * math.sin(th), 6), round(rho0 - rho * math.cos(th), 6)
 
 
 def haversine_mi(lat1, lon1, lat2, lon2):
@@ -100,7 +125,10 @@ def build_network(places: pl.DataFrame, seed: int = SEED) -> dict:
         for dist, f in ds:
             out_site.append(f); out_dem.append(d); out_mi.append(dist)
     in_mi = [[road_mi(p["lat"], p["lon"], s["lat"], s["lon"]) for s in sites] for p in plants]
-    return {"commodities": COMMODITIES, "demand_nodes": dem_nodes, "sites": sites, "plants": plants,
+    for g in (*dem_nodes, *sites, *plants):
+        g["short_name"] = short_name(g["name"])
+        g["x"], g["y"] = albers(g["lat"], g["lon"])
+    return {"projection": PROJECTION, "commodities": COMMODITIES, "demand_nodes": dem_nodes, "sites": sites, "plants": plants,
             "out_arcs": {"site": out_site, "demand": out_dem, "road_mi": out_mi}, "in_road_mi": in_mi,
             "constants": {"circuity": CIRCUITY, "earth_radius_mi": EARTH_MI, "nearest_sites_per_demand_node": R, "seed": seed, "noise_sd": NOISE_SD,
                           "capacity_headroom": CAP_HEADROOM, "supply_headroom": SUPPLY_HEADROOM, "plant_shares": PLANT_SHARES,

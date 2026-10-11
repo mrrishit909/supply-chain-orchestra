@@ -8,7 +8,7 @@ from jsonschema import Draft202012Validator
 
 from pipelines.common import CONTRACTS, PUBLIC, ROOT
 
-NAMES = ["meta", "quality", "network", "model", "solutions", "robustness", "solver_test_vectors", "facts"]
+NAMES = ["meta", "quality", "network", "model", "solutions", "robustness", "sweep", "solver_test_vectors", "facts"]
 
 
 @pytest.mark.parametrize("name", NAMES)

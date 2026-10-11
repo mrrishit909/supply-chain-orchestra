@@ -41,7 +41,7 @@ def draws(net: dict, cfg: dict = CFG) -> list[dict]:
             for d in range(D):
                 if road_mi(dn[epi]["lat"], dn[epi]["lon"], dn[d]["lat"], dn[d]["lon"]) <= cfg["surge_radius_mi"]:
                     mult[d, :] *= 1 + cfg["regional_surge"]
-        out.append({"sites_down": sorted(down), "lanes_down": lanes, "event": event, "mult": mult})
+        out.append({"sites_down": sorted(down), "lanes_down": lanes, "event": event, "epi": epi if event else None, "mult": mult})
     return out
 
 
@@ -61,6 +61,7 @@ class Evaluator:
             if n.startswith("z"):
                 h.changeColIntegrality(j, highspy.HighsVarType.kContinuous)
         self.design = set(design)
+        self.sites = list(design)
         self.base_dem = [[self.m.dem[d][k] for k in range(self.m.K)] for d in range(self.m.D)]
         self.total = float(sum(map(sum, self.base_dem)))
 
@@ -83,13 +84,15 @@ class Evaluator:
         sol = h.getSolution().col_value
         unmet = float(sum(sol[self.col[f"u{d}_{k}"]] for d in range(m.D) for k in range(m.K)))
         cost = float(h.getInfo().objective_function_value) - PENALTY["unmet_usd_ton"] * unmet
+        deliv = [float(sum(sol[self.col[f"x{a}_{k}"]] for a in m.arcs_of_site[f] for k in range(m.K))) for f in self.sites]
         for f in sites_down:
             if f in self.design:
                 h.changeRowBounds(self.row[f"fix{f}"], 1.0, 1.0)
         for a in lanes_down:
             for k in range(m.K):
                 h.changeColBounds(self.col[f"x{a}_{k}"], 0.0, highspy.kHighsInf)
-        return {"cost": cost, "unmet": unmet, "service": 1.0 - unmet / dem, "adjusted": cost + lost_sales * unmet}
+        r = {"cost": cost, "unmet": unmet, "service": 1.0 - unmet / dem, "adjusted": cost + lost_sales * unmet, "demand": dem, "delivered": deliv}
+        return r
 
 
 def summarize(a: np.ndarray, tail_high: bool = True) -> dict:
@@ -108,12 +111,15 @@ def hist(a: np.ndarray, lo: float, hi: float, bins: int = 20) -> dict:
 def run_mc(net: dict, designs: dict[str, list[int]], cfg: dict = CFG) -> dict:
     ds = draws(net, cfg)
     ev = {k: Evaluator(net, v) for k, v in designs.items()}
-    res = {k: {"cost_usd": [], "service_level": [], "adjusted_cost_usd": []} for k in designs}
+    res = {k: {"cost_usd": [], "service_level": [], "adjusted_cost_usd": [], "unmet_tons": [], "delivered_by_site": []} for k in designs}
     under = {k: ev[k].run() for k in designs}
+    dem_tot: list = []
     for dr in ds:
         for k in designs:
             r = ev[k].run(dr["sites_down"], dr["lanes_down"], dr["mult"], cfg["lost_sales_usd_ton"])
             res[k]["cost_usd"].append(round(r["cost"], 2)); res[k]["service_level"].append(round(r["service"], 6)); res[k]["adjusted_cost_usd"].append(round(r["adjusted"], 2))
+            res[k]["unmet_tons"].append(round(r["unmet"], 1)); res[k]["delivered_by_site"].append([round(v, 1) for v in r["delivered"]])
+        dem_tot.append(round(r["demand"], 1))
     tot = ev[next(iter(designs))].total
     summ, hs = {}, {}
     allc = np.concatenate([np.array(res[k]["adjusted_cost_usd"]) for k in designs])
@@ -128,8 +134,8 @@ def run_mc(net: dict, designs: dict[str, list[int]], cfg: dict = CFG) -> dict:
     if opt is not None:
         for f in opt:
             r = ev["optimized"].run([f])
-            crit.append({"site": f, "delta_cost_usd": round(r["adjusted"] - under["optimized"]["adjusted"], 2), "service_level": round(r["service"], 6), "unmet_tons": round(r["unmet"], 3)})
+            crit.append({"site": f, "delta_cost_usd": round(r["adjusted"] - under["optimized"]["adjusted"], 2), "service_level": round(r["service"], 6), "unmet_tons": round(r["unmet"], 3), "delivered_by_site": [round(v, 1) for v in r["delivered"]]})
         crit.sort(key=lambda c: -c["delta_cost_usd"])
     return {"config": cfg, "results": res, "summary": summ, "histograms": hs, "undisrupted": {k: {"cost": round(under[k]["cost"], 2), "service": round(under[k]["service"], 6)} for k in designs},
-            "draws": {"sites_down": [len(d["sites_down"]) for d in ds], "lanes_down": [len(d["lanes_down"]) for d in ds], "regional_event": [int(d["event"]) for d in ds],
+            "draws": {"failed_sites": [d["sites_down"] for d in ds], "epicentre": [d["epi"] for d in ds], "demand_tons": dem_tot, "sites_down": [len(d["sites_down"]) for d in ds], "lanes_down": [len(d["lanes_down"]) for d in ds], "regional_event": [int(d["event"]) for d in ds],
                       "demand_multiplier": [round(float(np.sum(d["mult"] * np.array(ev[next(iter(designs))].base_dem)) / tot), 4) for d in ds]}, "site_criticality": crit}
