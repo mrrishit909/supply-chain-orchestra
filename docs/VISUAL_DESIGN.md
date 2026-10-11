@@ -62,6 +62,7 @@ These are inputs to the design. The design does not choose them.
   - `design/sketches/dock-s00-d-violet.png`: the rejected violet colourway
   - `design/sketches/lens-s00-d.png`, `lens-s00-t0-d.png`, `lens-s04-d.png`, `lens-s00-m.png`: the discarded "Lens" iteration
   - `design/sketches/distinctness-sheet.png`: the contact-scale comparison (section 2)
+  - `design/sketches/p03-p07-pair.png`: the P03 watch-item check, colour and greyscale (section 2)
 - **What we take from the reference** (principles only, never assets or copy): black stages lit by one luminous form, oversized serif statements revealed word by word through blur, uppercase mono for all UI and body copy, 100dvh sticky stages in long tracks, threshold-stepped 1.2s settles, 4-segment story cards, an argument card stack, a square blur bottom nav with a mobile current-section pill, and a closing that echoes the opening. We do **not** take its ring dial. Our circle has no outline, no marks on its circumference, and never rotates.
 
 ### The Cross-Dock: encoding (binding)
@@ -131,7 +132,7 @@ P07 is the program's synthetic-network site, so its palette is its honesty legen
 
 Every visual carries one chip: 13px mono, 8px padding, `#ffffff1a` background, the text in the tag's colour. Where an artifact carries `tags`, **the chip text comes from the artifact**, not from this document (DR-3 aligns the artifact tags with the brief: solver outputs SIMULATED).
 
-**The footer is on every scene from S01 on** (12px mono, 50% white): `meta.attribution`, `meta.licence_note` (S02 card 1, S07 answer 7 and S08), `SEED {{meta.seed}}`, and `NOT A REAL COMPANY, NETWORK OR FREIGHT PRICE` (`meta.limitations[0]`).
+**The footer is on every scene from S01 on** (12px mono, 50% white): `meta.attribution`, `meta.licence_note` (S02 card 1, S07 answer 7 and S08), `SEED {{meta.seed}}`, and `meta.limitations[0]` verbatim, uppercased ("THE NETWORK, COSTS AND CAPACITIES ARE SYNTHETIC; RESULTS ARE NOT STATEMENTS ABOUT ANY REAL SUPPLY CHAIN."). No paraphrase of an artifact string is ever bound to that artifact's field; design copy is marked as such in section 5.
 
 ---
 
@@ -293,7 +294,9 @@ Nearly every radial or circumferential structure is owned. What is left is a cir
 5. **Not P05.** P05 is a dotted texture of grains with seams. A has no dots at all.
 6. **Planned owners.** No concentric rings (P06, P08, P09), no sweep (P06), no arc (P09), no central orb or branching (P10): the disc has no centre mark, and the dock is a line, not a point.
 
-**Watch item.** P03 and P07 are both warm discs at S00. The QA sheet must put the real P03 S00 end frame next to the real P07 S00 end frame; if a reviewer cannot tell "grid globe" from "barred dock" at 240px, the dock gap widens to 12px and the falloff deepens to 20% at the rim before anything else changes.
+**The P03 check (closed at design time).** P03 and P07 are both warm discs at S00, so I put the real P03 S00 end frame next to the P07 S00 sketch at 240px, in colour and in greyscale (`design/sketches/p03-p07-pair.png`, from `compose_p03_pair.py`). With hue removed, P03 reads as a sphere wrapped in a curved two-way grid with coastlines, and P07 as a flat disc of vertical bars cut by one black horizontal line. They separate on structure alone, so no mitigation is applied. The QA open/close sheet repeats this check on real build frames (MOTION_SYSTEM test 15).
+
+![P03 vs P07, colour and greyscale](../design/sketches/p03-p07-pair.png)
 
 **Why A gets 4, not 5, for "never a standard chart".** Bars of varying width inside a shape can slide toward a mosaic plot (reference 16) or a "circular barcode" infographic. Section 7 fences it: no axes, no proportion labels on the edge, no rectangles outside the disc, the dock always present, and the disc always lit from the dock.
 
@@ -441,7 +444,7 @@ There are no spinners and no artificial delays.
 
 | # | Fill | Title | Visual zone | Data | Tag |
 |---|---|---|---|---|---|
-| 1 | `#161616` | "A hundred real places." | The join ledger as a falling count: `32,363 GAZETTEER ROWS → 19,480 JOINED → 19,308 USABLE → 100 LARGEST`, each line with its drop reason (`149 OUTSIDE THE CONTIGUOUS US`, `3 ZERO POPULATION`), then 100 white points in Albers position. A line: `INTERNAL POINT: INSIDE THE CITY LIMIT, NOT A CITY HALL OR A WAREHOUSE` | `quality.join_ledger`, `quality.selection`, `network.demand_nodes` | OBSERVED |
+| 1 | `#161616` | "A hundred real places." | The join ledger as a falling count, each line the previous minus its stated drop: `32,363 GAZETTEER ROWS` → `−12,883 NO PEP MATCH (MOSTLY CENSUS-DESIGNATED PLACES)` → `19,480 JOINED` → `−20 NOT ACTIVE IN EITHER FILE` → `19,460 ACTIVE` → `−149 OUTSIDE THE CONTIGUOUS US` → `−3 ZERO POPULATION` → `19,308 USABLE` → `100 LARGEST`, then 100 white points in Albers position. (`quality.join_ledger`: `gazetteer_rows`, `gazetteer_unmatched_to_pep`, `joined`, `dropped_not_active_either_file`, `active_joined`, `dropped_non_contiguous`, `dropped_zero_pop`, `usable_places`.) A line: `INTERNAL POINT: INSIDE THE CITY LIMIT, NOT A CITY HALL OR A WAREHOUSE` | `quality.join_ledger`, `quality.selection`, `network.demand_nodes` | OBSERVED |
 | 2 | `#690DE2`, white text | "Everything else is invented." | The generator rules as five mono lines with their constants (`SITES: 14 FROM THE 60 LARGEST, FARTHEST-POINT, SEED 20261011`, `PLANTS: 3, SUPPLY 1.25 x DEMAND`, `DEMAND: POPULATION x RATE x NOISE (SD 0.12)`, `CAPACITY ∝ √POPULATION, 2.4 x DEMAND`, `FIXED COST: 20 M x LAND INDEX`) | `network.constants`, `network.commodities` | SYNTHETIC |
 | 3 | `#161616` | "Miles, not roads." | Two points (Fort Worth, Houston) with the great-circle path drawn, `284.6 MI = 237.2 GREAT-CIRCLE x 1.2`, and a struck-through road glyph label `NO ROAD ROUTING` | `network.in_road_mi`, `network.constants.circuity` | DERIVED |
 | 4 | `#161616` | "One model, two solvers." | Two LP text heads side by side (Python, browser) with the shared SHA-256 prefix highlighted, `31 VECTORS · 0 FAILURES · MEDIAN 60 MS IN WASM`, and the model size `1,640 COLUMNS · 1,866 ROWS · 14 YES/NO DECISIONS` | `solver_test_vectors.vectors`, parity facts (DR-7), `meta.sizes` | SYNTHETIC |
@@ -529,7 +532,7 @@ There are no spinners and no artificial delays.
 
 - **Data:** `solutions.{infeasible_supply, relaxed_supply, infeasible_capacity, relaxed_capacity, infeasible_sites, relaxed_sites, storm_legacy, storm_optimized}`, `model.penalties`, DR-8.
 - **Insight.** When the network cannot work, the relaxation says which promise breaks first and by how much: not enough production, not enough room, not enough sites, or not enough reach after a storm.
-- **Tags.** SIMULATED · RELAXED; `PENALTIES ARE DEVICES, NOT COSTS` (`model.penalties.note`) always visible with a relaxed record. Relaxed objectives are shown as `OPERATING {{op}} + PENALTY {{pen}} M`, never as one number.
+- **Tags.** SIMULATED · RELAXED; `model.penalties.note` verbatim, uppercased ("PENALTIES ARE MODELLING DEVICES FOR THE RELAXATION, NOT COSTS; ...") always visible with a relaxed record. Relaxed objectives are shown as `OPERATING {{op}} + PENALTY {{pen}} M`, never as one number.
 - **Interactions** (interaction 6): CASE and STRICT/RELAXED, both visitor-set at any p; `SOLVE THIS LIVE` re-solves the case in the browser and shows the source.
 - **Transition to S06.** The disc splits into the G4 pair (legacy left, optimized right), 800ms.
 - **States.** A missing preset: that case's tab `aria-disabled` with `NOT PUBLISHED`. **Reset:** SUPPLY, STRICT.
@@ -544,7 +547,7 @@ There are no spinners and no artificial delays.
   - p 0.86: **lose one site.** A picker over the 8 optimized sites (`site_criticality`): losing New York adds 184.7 M; losing Houston leaves 109,765 t unserved. The optimized disc re-solves from the published record (DR-6 for per-site loss records).
 - **Data:** `robustness.{config, draws, results, summary, site_criticality, storm_exemplar}`, DR-6.
 - **Insight.** Facing the same 500 seeded storms, the optimized footprint keeps everyone supplied in about two draws of three, the legacy one in about one of three. It is sturdier mostly because it has two more sites, not because it was designed for storms.
-- **Tags.** SYNTHETIC/SIMULATED everywhere, `500 SEEDED DRAWS · SEED 20261012`, and `meta.limitations[2]` ("evaluated for fixed designs; the design is not optimised against disruptions") always visible.
+- **Tags.** SYNTHETIC/SIMULATED everywhere, `500 SEEDED DRAWS · SEED 20261012`, and `meta.limitations[2]` verbatim, uppercased ("MONTE CARLO OUTCOMES ARE SIMULATED, EVALUATED FOR FIXED DESIGNS; THE DESIGN IS NOT OPTIMISED AGAINST DISRUPTIONS.") always visible.
 - **Interactions** (interaction 7): DRAW (scrub, or a `◀ ▶` stepper and a number field), ORDER (`BY LEGACY COST | BY DRAW NUMBER`), LOSE ONE SITE.
 - **Transition to S07.** The pair dims to 15% and moves to G1 behind the argument stack.
 - **States.** If DR-6 is missing, failed sites and unserved slots are not drawn; discs show served share only as `SERVICE {{s}}` text with the pooled served disc, and the caption says `PER-DRAW SITE DETAIL NOT PUBLISHED`. **Reset:** draw 1, by legacy cost.
@@ -676,7 +679,7 @@ There are eleven interactions. Six are driven by visitor-set analytical paramete
 - **State:** active card 0..3.
 - **Visual output:** the card row translation, the active progress segment, the card visuals.
 - **Reduced motion:** 4 cards stacked vertically.
-- **Test:** card 1's counts equal `quality.join_ledger` and recompute (each line is the previous minus its drops; ✗ in `--state-error` if not); card 3's arithmetic `284.6 = round(gc × 1.2, 1)` is recomputed from coordinates; card 4's hash prefixes come from `solver_test_vectors`.
+- **Test:** card 1's counts equal `quality.join_ledger` and recompute (each line is the previous minus its drop: 32,363 − 12,883 = 19,480; − 20 = 19,460; − 149 − 3 = 19,308; ✗ in `--state-error` if not); card 3's arithmetic `284.6 = round(gc × 1.2, 1)` is recomputed from coordinates; card 4's hash prefixes come from `solver_test_vectors`.
 
 ### 5. The Unfold (S04) [P]
 
@@ -761,6 +764,7 @@ There are eleven interactions. Six are driven by visitor-set analytical paramete
 
 Rules:
 - Serif statements in sentence case. Mono copy in uppercase.
+- A line bound to an artifact field (`meta.*`, `solutions.duals_note`, `model.penalties.note`) is rendered from that field verbatim (uppercased where mono). Every other line here is design copy, owned by this document.
 - Every number comes from section 6. Every cost carries `SYNTHETIC`; every solved number carries its status and source.
 - No U+2014 or U+2015 dashes.
 - Never "real-time", "live data", "AI", "predicts", "forecast", or a company name.
