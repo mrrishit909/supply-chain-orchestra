@@ -13,9 +13,9 @@ export const unfold = store({ design: "legacy" as "legacy" | "optimized", t: 0 }
 export type BreakCase = "supply" | "capacity" | "sites" | "storm";
 export const brk = store({ case: "supply" as BreakCase, mode: "strict" as "strict" | "relaxed", storm: "legacy" as "legacy" | "optimized", live: null as Plan | null });
 /** S06: draw (index into the order), order, lost site. */
-export const storms = store({ draw: 0, order: "legacy_cost" as "legacy_cost" | "index", lost: null as number | null, tail: false });
+export const storms = store({ draw: 0, order: "legacy_cost" as "legacy_cost" | "index", lost: null as number | null, phase: "scrub" as "scrub" | "tail" | "lose" });
 /** Journey inspector: one open selection at a time (interaction 9). */
-export type Pick = { kind: "route" | "site" | "city"; id: number; key?: string } | null;
+export type Pick = { kind: "route"; rk: "in" | "out"; site: number; end: number; commodity: number } | { kind: "site"; id: number } | { kind: "city"; id: number } | null;
 export const inspector = store({ scene: null as string | null, pick: null as Pick });
 export const openPick = (scene: string, pick: Pick) => inspector.set({ scene, pick });
 export const closePick = () => inspector.set({ scene: null, pick: null });

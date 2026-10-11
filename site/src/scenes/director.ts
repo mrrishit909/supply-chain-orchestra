@@ -255,6 +255,26 @@ function placeLabels(list: LabelSpec[]) {
   for (let i = list.length; i < pool.length; i++) pool[i]!.hidden = true;
 }
 
+let lastPaints: { d: DiscSpec; b: Blend; R: number }[] = [];
+export interface DockPick { meta: BarMeta; tons: number; disc: number; plan: Plan; moving: boolean }
+/** The dock bar under a viewport point (x within its slot, y inside the chord); null on the seam, outside the disc or on a moving bar. */
+export function pickDock(px: number, py: number): DockPick | null {
+  for (let di = 0; di < lastPaints.length; di++) {
+    const { d, b, R } = lastPaints[di]!;
+    const x = (px - d.cam.cx) / R, y = (py - d.cam.cy) / R;
+    if (Math.abs(x) >= 1 || Math.abs(y) < (SEAM() / R) || Math.abs(y) > Math.sqrt(1 - x * x)) continue;
+    const half = y < 0 ? 0 : 1;
+    for (let i = 0; i < b.u.keys.length; i++) {
+      const m = b.u.keys[i]!;
+      if (m.half !== half || x < b.x0[i]! || x >= b.x1[i]!) continue;
+      const tons = b.B && d.mix > 0 && d.mix < 1 ? -1 : (b.A.tons[i] ?? 0) * 0 + (d.mix >= 1 && b.B ? b.B.tons[i]! : b.A.tons[i]!);
+      if (tons === 0) continue;
+      return { meta: m, tons: Math.max(0, tons), disc: di, plan: d.mix >= 1 && d.B ? d.B : d.A, moving: tons < 0 };
+    }
+  }
+  return null;
+}
+
 let tmpC: HTMLCanvasElement | null = null;
 function glowTmp(w: number, h: number) {
   if (!tmpC) tmpC = document.createElement("canvas");
@@ -277,7 +297,7 @@ function tick(now: number) {
   const p = loc.p;
   const frame = build ? build({ now, p, L, W, H, net, solutions, after: loc.after }) : null;
   debug.scene = loc.id;
-  if (!frame) { if (lastSig !== "none") { ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.clearRect(0, 0, W, H); main.style.opacity = "0"; lastSig = "none"; } placeLabels([]); return; }
+  if (!frame) { if (lastSig !== "none") { ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.clearRect(0, 0, W, H); main.style.opacity = "0"; if (glowC) glowC.style.opacity = "0"; if (bloomC) bloomC.style.opacity = "0"; lastSig = "none"; glowSig = ""; lastPaints = []; debug.discs = []; placeLabels([]); } return; }
   // frame pacing tier: median of the first 60 frames after the intro
   if (!quality.forced && !intro.playing && quality.samples.length < 60 && lastFrameAt) {
     quality.samples.push(now - lastFrameAt);
@@ -300,6 +320,7 @@ function tick(now: number) {
   main.style.opacity = String(frame.opacity ?? 1);
   debug.discs = []; debug.areas = [];
   const paints: { d: DiscSpec; b: Blend; R: number; paint: Paint }[] = [];
+  lastPaints = paints;
   if (frame.custom) frame.custom(ctx, { W, H });
   for (const d of frame.discs) {
     const { b, R, paint, n } = renderDisc(ctx, net, d, now);

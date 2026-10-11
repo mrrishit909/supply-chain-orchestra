@@ -6,6 +6,9 @@ import { useArtifact } from "../data/useArtifact";
 import { useNear } from "../scroll/useNear";
 import { CORE_SPECS, SWEEP, useCore } from "./data";
 import { Slot } from "./Slot";
+import { DockHit } from "../components/DockHit";
+import { Inspector } from "../components/Inspector";
+import { DockStill } from "../components/DockStill";
 import { sites } from "../state/scenes";
 import { jumpTo } from "../scroll/engine";
 import { useMotion } from "../scroll/hooks";
@@ -56,7 +59,7 @@ export function S03aSites({ def }: { def: SceneDef }) {
   return (
     <Track id={def.id} height={def.track} landing={def.landing} className={`scene scene--grid scene-${def.id}`} label="Sites: open a site, shorten a trip">
       <SceneErrors id={def.id} specs={[...CORE_SPECS, SWEEP] as ArtifactSpec<unknown>[]} />
-      <Slot scene={def.id} name="disc" />
+      <div className="slot-wrap"><Slot scene={def.id} name="disc" />{net ? <DockHit net={net} scene={def.id} label="The dock for the chosen number of sites; hover a bar for its route" /> : null}</div>
       <div className="scene-text">
         <p className="scene-kicker">EXACTLY K SITES OPEN · FIXED COST AGAINST MILES · ONE REAL SOLVE PER STEP</p>
         <h2 id={`${def.id}-title`} tabIndex={-1} data-scene-heading className="scene-statement">{def.title}</h2>
@@ -111,7 +114,20 @@ export function S03aSites({ def }: { def: SceneDef }) {
         </ArtifactStatus>
         <div className="sites-tags"><HonestyChip tag="SIMULATED" detail="SYNTHETIC COSTS" /><HonestyChip tag="DERIVED" detail="HAULS" /></div>
       </div>
-      {!motion ? <p className="sr-only">Reduced motion: use the stepper to choose k.</p> : null}
+      {net && plan ? <Inspector scene={def.id} net={net} plan={plan} /> : null}
+      {!motion && net && sw ? (
+        <div className="sites-stills">
+          {[3, 5, 8, 14].map((k) => {
+            const p = sweepPlan(net, sw, "exactly", k)!;
+            return (
+              <figure key={k} className="sites-still">
+                <DockStill net={net} spec={{ A: p, mix: 0 }} refTons={p.demandTons} label={`Exactly ${k} sites open`} className="sites-still__dock" />
+                <figcaption className="readout-line tnum">EXACTLY {k} SITES OPEN · {p.objective ? `${musd(p.objective)} M USD / YR` : "INFEASIBLE"} · {statusWord(p)} · {sourceWord(p)}</figcaption>
+              </figure>
+            );
+          })}
+        </div>
+      ) : null}
     </Track>
   );
 }

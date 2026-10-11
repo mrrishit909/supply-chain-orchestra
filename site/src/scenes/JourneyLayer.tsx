@@ -50,8 +50,8 @@ export function JourneyLayer({ introPlaying }: { introPlaying: boolean }) {
       {!motion && plan && ns.status === "ready" && still ? createPortal(
         <DockStill className="journey-still" net={ns.data} label={s00.h1 + " The dock at its giant size."} fit={1.08} spec={{ A: plan, mix: 0 }} labels />, still,
       ) : null}
-      <Slot scene="journey" name="disc" />
       <div className="s01">
+        <Slot scene="journey" name="disc" />
         <WordReveal as="p" className="s01-statement" text={s01.statement} mode={motion ? { kind: "scrub", track: "journey", from: 0.35, to: 0.75 } : { kind: "value", t: 1 }} />
         {fs.status === "ready" && plan && ns.status === "ready" ? (
           <div className={`s01-cards ${cards || !motion ? "is-in" : ""}`}>

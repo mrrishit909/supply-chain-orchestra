@@ -15,6 +15,16 @@ import "../scenes/frames-journey";
 import "../scenes/frames-real";
 import "../scenes/frames-sites";
 import "../scenes/frames-limits";
+import "../scenes/frames-unfold";
+import "../scenes/frames-break";
+import "../scenes/frames-storms";
+import { S06Storms } from "../scenes/S06Storms";
+import { Desk } from "../scenes/Desk";
+import "../scenes/frames-closing";
+import { S07Evidence } from "../scenes/S07Evidence";
+import { S08Closing } from "../scenes/S08Closing";
+import { S05Break } from "../scenes/S05Break";
+import { S04Unfold } from "../scenes/S04Unfold";
 import { S03bLimits } from "../scenes/S03bLimits";
 import { S02Real } from "../scenes/S02Real";
 import { S03aSites } from "../scenes/S03aSites";
@@ -31,7 +41,7 @@ function Placeholder({ s }: { s: SceneDef }) {
   );
 }
 
-const SCENE_COMPONENTS: Record<string, (p: { def: SceneDef }) => React.ReactNode> = { real: S02Real, sites: S03aSites, limits: S03bLimits };
+const SCENE_COMPONENTS: Record<string, (p: { def: SceneDef }) => React.ReactNode> = { real: S02Real, sites: S03aSites, limits: S03bLimits, unfold: S04Unfold, break: S05Break, storms: S06Storms, desk: Desk, evidence: S07Evidence };
 
 /** App: the static S00/S01 track (index.html) plus the React scenes, the dock canvases and the nav. */
 export function App() {
@@ -75,6 +85,7 @@ export function App() {
       {portal ? createPortal(<JourneyLayer introPlaying={intro.playing} />, portal) : null}
       {SCENES.slice(1).map((s) => {
         const C = SCENE_COMPONENTS[s.id];
+        if (s.id === "closing") return <S08Closing key={s.id} def={s} onReplay={intro.replay} />;
         return C ? <C key={s.id} def={s} /> : <Placeholder key={s.id} s={s} />;
       })}
     </>

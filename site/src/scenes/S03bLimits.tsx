@@ -6,6 +6,11 @@ import { ArtifactStatus, SceneErrors } from "../components/StateUI";
 import { useArtifact } from "../data/useArtifact";
 import { CORE_SPECS, MODEL, useCore } from "./data";
 import { Slot } from "./Slot";
+import { DockHit } from "../components/DockHit";
+import { Inspector } from "../components/Inspector";
+import { DockStill } from "../components/DockStill";
+import { useMotion } from "../scroll/hooks";
+import { PRICE_BIN } from "./price";
 import { limits } from "../state/scenes";
 import { getSolver, requestSolve, startSolver, subscribeSolver, retrySolver } from "../state/solver";
 import { useActiveScene } from "../scroll/hooks";
@@ -25,6 +30,7 @@ export function S03bLimits({ def }: { def: SceneDef }) {
   const [ms, mRetry] = useArtifact(MODEL, true);
   const st = useSyncExternalStore(limits.subscribe, limits.get);
   const sv = useSyncExternalStore(subscribeSolver, getSolver);
+  const motion = useMotion();
   const warmed = useRef(false);
   const reached = active ? sceneIndex(active) >= sceneIndex(def.id) : false;
   useEffect(() => { if (reached) startSolver(); }, [reached]);
@@ -68,7 +74,7 @@ export function S03bLimits({ def }: { def: SceneDef }) {
   return (
     <Track id={def.id} height={def.track} landing={def.landing} className={`scene scene--grid scene-${def.id}`} label="Limits: what binds">
       <SceneErrors id={def.id} specs={[...CORE_SPECS, MODEL] as ArtifactSpec<unknown>[]} />
-      <Slot scene={def.id} name="disc" />
+      <div className="slot-wrap"><Slot scene={def.id} name="disc" />{net ? <DockHit net={net} scene={def.id} label="The dock with the binding site lit; hover a bar for its route" /> : null}</div>
       <div className="scene-text">
         <p className="scene-kicker">WHAT BINDS · THREE STEPS · THEN CHECK THE CLAIM IN YOUR BROWSER</p>
         <h2 id={`${def.id}-title`} tabIndex={-1} data-scene-heading className="scene-statement">{def.title}</h2>
@@ -124,6 +130,23 @@ export function S03bLimits({ def }: { def: SceneDef }) {
           </>
         ) : null}
       </div>
+      {net && opt ? <Inspector scene={def.id} net={net} plan={opt} pub={sc ?? null} /> : null}
+      {!motion && net && opt && core ? (
+        <div className="sites-stills">
+          {[0, 1, 2].map((i) => (
+            <figure key={i} className="sites-still">
+              <DockStill net={net} refTons={opt.demandTons} label={["A full site", "A drained plant", "What a ton costs where"][i]!} className="sites-still__dock"
+                spec={{
+                  A: opt, mix: 0,
+                  alpha: i === 0 ? (m) => (m.site === 10 ? 1 : 0.5) : i === 1 ? (m) => (m.kind === "in" && m.ref === 0 ? 1 : 0.3) : undefined,
+                  outline: i === 0 ? (m) => (m.site === 10 ? 0.9 : 0) : undefined,
+                  price: i === 2 ? PRICE_BIN(core.facts, core.sol) : undefined, priceMix: i === 2 ? 1 : 0,
+                }} />
+              <figcaption className="readout-line">{["S10 OKLAHOMA CITY IS FULL", "P0 FORT WORTH SHIPS ALL IT CAN MAKE", "DEMAND PRICE STEPS (DERIVED)"][i]}</figcaption>
+            </figure>
+          ))}
+        </div>
+      ) : null}
     </Track>
   );
 }
