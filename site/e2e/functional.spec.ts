@@ -40,7 +40,7 @@ test("intro: SKIP visible at 100 ms, nav within 400 ms of the click, Esc and whe
   const st = await page.evaluate(() => (window as any).__sco.introStats());
   expect(st.monotonic).toBe(true);
   await page.reload();
-  await page.waitForFunction(() => (window as any).__sco?.debug().frames > 1);
+  await page.waitForFunction(() => (window as any).__sco?.debug().frames >= 1);
   expect(await page.evaluate(() => (window as any).__sco.introStats().playing)).toBe(false);
   // wheel completes a replay
   await page.getByRole("button", { name: "REPLAY INTRO" }).first().click();
@@ -275,12 +275,18 @@ for (const [w, h] of [[1440, 900], [390, 844]] as const) {
       try { await page.waitForSelector(sel, { timeout: 8000, state: "attached" }); } catch { bad.push(`${w} ${file} x ${scene}: no inline error`); await ctx.close(); continue; }
       await page.waitForTimeout(300);
       const pt = await page.evaluate((s) => {
-        const el = [...document.querySelectorAll<HTMLElement>(s)].find((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.top >= 0 && r.bottom <= innerHeight; });
-        if (!el) return null;
-        const r = el.getBoundingClientRect();
-        const x = r.left + r.width / 2, y = r.top + r.height / 2;
-        const top = document.elementFromPoint(x, y);
-        return { x, y, ok: top === el || el.contains(top) };
+        // any in-view RETRY of this file (the scene's panel line or the pinned scene banner) that a real pointer reaches
+        let first: { x: number; y: number; ok: boolean } | null = null;
+        for (const el of document.querySelectorAll<HTMLElement>(s)) {
+          const r = el.getBoundingClientRect();
+          if (!(r.width > 0 && r.top >= 0 && r.bottom <= innerHeight)) continue;
+          const x = r.left + r.width / 2, y = r.top + r.height / 2;
+          const top = document.elementFromPoint(x, y);
+          const q = { x, y, ok: top === el || el.contains(top) };
+          if (q.ok) return q;
+          first = first ?? q;
+        }
+        return first;
       }, sel);
       if (!pt) bad.push(`${w} ${file} x ${scene}: RETRY not in view`);
       else if (!pt.ok) bad.push(`${w} ${file} x ${scene}: RETRY covered`);

@@ -4,7 +4,7 @@ import { StoryDeck, type DeckCard } from "../components/StoryDeck";
 import { HonestyChip } from "../components/HonestyChip";
 import { SceneErrors, ArtifactStatus } from "../components/StateUI";
 import { useArtifact } from "../data/useArtifact";
-import { useNear } from "../scroll/useNear";
+import { useReached } from "../scroll/useReached";
 import { CORE_SPECS, MODEL, QUALITY, useCore } from "./data";
 import { buildLp, fullParams, sha256 } from "../model/lp";
 import { albers, greatCircle, haversineMi } from "../map/project";
@@ -129,7 +129,7 @@ function ModelVisual({ net, near }: { net: Network; near: boolean }) {
 
 export function S02Real({ def }: { def: SceneDef }) {
   const core = useCore();
-  const near = useNear(def.id);
+  const near = useReached(def.id);
   const [qs, qRetry] = useArtifact(QUALITY, near);
   const cards: DeckCard[] = [];
   if (core) {
@@ -161,7 +161,7 @@ export function S02Real({ def }: { def: SceneDef }) {
   }
   return (
     <Track id={def.id} height={def.track} landing={def.landing} className={`scene scene-${def.id}`} label="What is real and what is invented">
-      <SceneErrors id={def.id} specs={[...CORE_SPECS, QUALITY] as ArtifactSpec<unknown>[]} />
+      <SceneErrors id={def.id} specs={[...CORE_SPECS, QUALITY, MODEL] as ArtifactSpec<unknown>[]} />
       <p className="scene-kicker real-kicker">WHAT IS REAL · WHAT IS INVENTED · AND HOW WE KNOW THE DIFFERENCE</p>
       <h2 id={`${def.id}-title`} tabIndex={-1} data-scene-heading className="sr-only">A hundred real places. Everything else is invented.</h2>
       {core ? <StoryDeck track={def.id} cards={cards} /> : null}

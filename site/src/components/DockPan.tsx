@@ -18,7 +18,7 @@ export function DockPan({ label, active = true }: { label: string; active?: bool
         onPointerMove={(e) => { if (start.current) pan.drag(start.current.v + (e.clientX - start.current.x), limit); }}
         onPointerUp={() => { start.current = null; }} onPointerCancel={() => { start.current = null; }} />
       {([-1, 1] as const).map((d) => (
-        <button key={d} type="button" className={`pan-arrow pan-arrow--${d < 0 ? "l" : "r"}`} style={{ top: L.G0.cy - 22 }} aria-label={d < 0 ? "Pan the dock west" : "Pan the dock east"} onClick={() => pan.nudge(d === -1 ? 1 : -1, R, limit)}>
+        <button key={d} type="button" className={`pan-arrow pan-arrow--${d < 0 ? "l" : "r"}`} aria-label={d < 0 ? "Pan the dock west" : "Pan the dock east"} onClick={() => pan.nudge(d === -1 ? 1 : -1, R, limit)}>
           <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d={d < 0 ? "M8 1 L3 6 L8 11" : "M4 1 L9 6 L4 11"} fill="none" stroke="currentColor" strokeWidth="1.6" /></svg>
         </button>
       ))}

@@ -30,7 +30,9 @@ export function layout(vw: number, vh: number, force?: ViewportClass): Layout {
   } else if (cls === "T") {
     G0 = { cx: ox + 300 * s, cy: oy + 400 * s, R: 640 * s };
   } else {
-    G0 = { cx: ox + 195 * s, cy: oy + 270 * s, R: 510 * s };
+    // phones: the disc keeps its diameter >= 1.2 x the frame height, so it scales by height (the width only crops it)
+    const sh = vh / H;
+    G0 = { cx: vw / 2, cy: 270 * sh, R: 510 * sh };
   }
   return { cls, compact, W: vw, H: vh, G0, s };
 }

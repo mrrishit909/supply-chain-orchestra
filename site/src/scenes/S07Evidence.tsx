@@ -80,7 +80,7 @@ export function S07Evidence({ def }: { def: SceneDef }) {
           if (motion && age < 0) return null;
           return (
             <li key={k} className={`ev-pair ${motion ? "" : "is-flat"}`} data-age={Math.min(age, 4)} style={motion ? ({ ["--age" as string]: Math.min(age, 4) } as React.CSSProperties) : undefined} aria-current={age === 0 ? "true" : undefined} aria-hidden={motion && age > 0 ? true : undefined} {...(motion && age > 0 ? ({ inert: "" } as object) : {})}>
-              <p className="ev-q">{r.q}</p>
+              <p className="ev-q"><span className="ev-q__t">{r.q}</span></p>
               <div className="ev-a">
                 <p className="ev-a__text">{r.a}</p>
                 <div className="ev-visual">{r.visual}</div>

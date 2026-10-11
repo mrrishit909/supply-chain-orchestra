@@ -446,16 +446,20 @@ html[data-motion="off"] .s01-statement { opacity: 1 !important; }
   .storm-cap { writing-mode: horizontal-tb; max-width: 30%; text-align: left; }
 }
 
-.dock-pan { position: absolute !important; left: 56px; right: 56px; z-index: 5 !important; touch-action: pan-y; }
+.dock-pan { position: absolute !important; left: 0; right: 0; z-index: 5 !important; touch-action: pan-y; }
 .pan-arrow { position: absolute !important; z-index: 6 !important; width: 44px; height: 44px; margin-top: -2px; display: grid; place-items: center; border: 0; background: rgb(0 0 0 / 0.78); color: #fff; cursor: pointer; }
-.pan-arrow--l { left: 4px; }
-.pan-arrow--r { right: 4px; }
+.pan-arrow { top: 8px; }
+.pan-arrow--l { right: 56px; }
+.pan-arrow--r { right: 8px; }
 @media (min-width: 768px) { .dock-pan, .pan-arrow { display: none; } }
 
 /* receding cards are silhouettes (palette recession); only the newest exchange carries readable text */
-.ev-pair[data-age="1"] .ev-q, .ev-pair[data-age="2"] .ev-q, .ev-pair[data-age="3"] .ev-q, .ev-pair[data-age="4"] .ev-q { color: transparent; }
 .ev-pair[data-age="1"] .ev-a > *, .ev-pair[data-age="2"] .ev-a > *, .ev-pair[data-age="3"] .ev-a > *, .ev-pair[data-age="4"] .ev-a > * { visibility: hidden; }
 html[data-motion="off"] .scene-closing .stage-content > * { inset: auto; }
 html[data-motion="off"] .close-text { margin: 0 var(--margin); max-width: none; }
 html[data-motion="off"] .close-corners .wordmark { position: relative; top: auto; left: auto; margin: 12px var(--margin) 0; }
 html[data-motion="off"] .close-scrim { display: none; }
+
+.story-card--violet .chip { background: rgb(0 0 0 / 0.62); }
+.ev-pair[data-age="1"] .ev-q__t, .ev-pair[data-age="2"] .ev-q__t, .ev-pair[data-age="3"] .ev-q__t, .ev-pair[data-age="4"] .ev-q__t { visibility: hidden; }
+.site-foot--err { padding: 6px 8px; }
