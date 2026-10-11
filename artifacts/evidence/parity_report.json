@@ -1,0 +1,322 @@
+{
+ "summary": {
+  "vectors": 31,
+  "failures": 0,
+  "wasm_ms_median": 60,
+  "wasm_ms_max": 1176,
+  "node": "v24.21.0",
+  "highs_npm": "1.15.3"
+ },
+ "vectors": [
+  {
+   "id": "preset:optimized",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 563621811.625,
+   "expected_objective": 563621811.62,
+   "wasm_ms": 898
+  },
+  {
+   "id": "preset:legacy",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 588008702.395,
+   "expected_objective": 588008702.39,
+   "wasm_ms": 21
+  },
+  {
+   "id": "preset:demand_surge",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 638290539.36542,
+   "expected_objective": 638290539.37,
+   "wasm_ms": 52
+  },
+  {
+   "id": "preset:high_freight",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 754916427.9056,
+   "expected_objective": 754916427.91,
+   "wasm_ms": 36
+  },
+  {
+   "id": "preset:lean_sites",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 594143933.861,
+   "expected_objective": 594143933.86,
+   "wasm_ms": 1053
+  },
+  {
+   "id": "preset:storm_optimized",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 930291554.8389997,
+   "expected_objective": 930291554.84,
+   "wasm_ms": 21
+  },
+  {
+   "id": "preset:storm_legacy",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 3225647080.416,
+   "expected_objective": 3225647080.42,
+   "wasm_ms": 18
+  },
+  {
+   "id": "preset:infeasible_supply",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Infeasible",
+   "objective": null,
+   "expected_objective": null,
+   "wasm_ms": 36
+  },
+  {
+   "id": "preset:relaxed_supply",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 2078986870.1578493,
+   "expected_objective": 2078986870.16,
+   "wasm_ms": 235
+  },
+  {
+   "id": "preset:infeasible_capacity",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Infeasible",
+   "objective": null,
+   "expected_objective": null,
+   "wasm_ms": 33
+  },
+  {
+   "id": "preset:relaxed_capacity",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 2342343926.516425,
+   "expected_objective": 2342343926.52,
+   "wasm_ms": 37
+  },
+  {
+   "id": "preset:infeasible_sites",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Infeasible",
+   "objective": null,
+   "expected_objective": null,
+   "wasm_ms": 33
+  },
+  {
+   "id": "preset:relaxed_sites",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 684143933.861,
+   "expected_objective": 684143933.86,
+   "wasm_ms": 1176
+  },
+  {
+   "id": "random:00",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 662782609.335983,
+   "expected_objective": 662782609.34,
+   "wasm_ms": 485
+  },
+  {
+   "id": "random:01",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 421823055.341322,
+   "expected_objective": 421823055.34,
+   "wasm_ms": 67
+  },
+  {
+   "id": "random:02",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 444952997.7449205,
+   "expected_objective": 444952997.74,
+   "wasm_ms": 56
+  },
+  {
+   "id": "random:03",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 1021684095.982362,
+   "expected_objective": 1021684095.98,
+   "wasm_ms": 125
+  },
+  {
+   "id": "random:04",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 885777015.006467,
+   "expected_objective": 885777015.01,
+   "wasm_ms": 39
+  },
+  {
+   "id": "random:05",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 643829364.6127418,
+   "expected_objective": 643829364.61,
+   "wasm_ms": 487
+  },
+  {
+   "id": "random:06",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 675738560.116735,
+   "expected_objective": 675738560.12,
+   "wasm_ms": 491
+  },
+  {
+   "id": "random:07",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 583332994.5215397,
+   "expected_objective": 583332994.52,
+   "wasm_ms": 60
+  },
+  {
+   "id": "random:08",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 1105054648.065432,
+   "expected_objective": 1105054648.07,
+   "wasm_ms": 538
+  },
+  {
+   "id": "random:09",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 309763347.854895,
+   "expected_objective": 309763347.85,
+   "wasm_ms": 45
+  },
+  {
+   "id": "random:10",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 675079383.5112888,
+   "expected_objective": 675079383.51,
+   "wasm_ms": 400
+  },
+  {
+   "id": "random:11",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 331725353.56255,
+   "expected_objective": 331725353.56,
+   "wasm_ms": 55
+  },
+  {
+   "id": "random:12",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 1160791066.5176396,
+   "expected_objective": 1160791066.52,
+   "wasm_ms": 127
+  },
+  {
+   "id": "random:13",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 642505037.328751,
+   "expected_objective": 642505037.33,
+   "wasm_ms": 298
+  },
+  {
+   "id": "closure:00",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 542156179.55213,
+   "expected_objective": 542156179.55,
+   "wasm_ms": 52
+  },
+  {
+   "id": "closure:01",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 554549413.0029,
+   "expected_objective": 554549413,
+   "wasm_ms": 550
+  },
+  {
+   "id": "closure:02",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 583258785.06888,
+   "expected_objective": 583258785.07,
+   "wasm_ms": 43
+  },
+  {
+   "id": "closure:03",
+   "hashOk": true,
+   "statusOk": true,
+   "objOk": true,
+   "status": "Optimal",
+   "objective": 600739849.09684,
+   "expected_objective": 600739849.1,
+   "wasm_ms": 268
+  }
+ ]
+}
