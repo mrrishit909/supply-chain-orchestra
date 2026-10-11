@@ -72,7 +72,7 @@ export function S06Storms({ def }: { def: SceneDef }) {
                   <p className="readout-line tnum">OPTIMIZED: {cap("optimized")}</p>
                 </>
               )}
-              {tal ? <p className="readout-line tnum">FULL SERVICE SO FAR: LEGACY {tal.legacy} · OPTIMIZED {tal.optimized} OF {st.draw + 1} DRAWS (ALL 500: {fact(core.facts, "mc_full_service_legacy")} AND {fact(core.facts, "mc_full_service_optimized")})</p> : null}
+              {tal ? <p className="readout-line tnum">FULL SERVICE SO FAR: LEGACY {tal.legacy} · OPTIMIZED {tal.optimized} OF {st.draw + 1} DRAWS <span className="compact-hide">(ALL 500: {fact(core.facts, "mc_full_service_legacy")} AND {fact(core.facts, "mc_full_service_optimized")})</span></p> : null}
               <div className="storm-ctl">
                 <div className="stepper" role="group" aria-label="Draw">
                   <span className="stepper__label">DRAW {st.draw + 1} OF 500 · NUMBER {idx + 1}</span>
@@ -93,7 +93,7 @@ export function S06Storms({ def }: { def: SceneDef }) {
                 </label>
                 {crit ? <p className="readout-line tnum">WITHOUT {net.sites[crit.site]!.short_name.toUpperCase()}: +{musd(crit.delta_cost_usd)} M USD / YR · {int(crit.unmet_tons)} T UNSERVED</p> : null}
               </div>
-              <p className="readout-line readout-line--muted">PER-SITE TOTALS · CITIES AND COMMODITIES NOT SHOWN PER DRAW. {core.meta.limitations[2]!.toUpperCase()}</p>
+              <p className="readout-line readout-line--muted storm-note">PER-SITE TOTALS · CITIES AND COMMODITIES NOT SHOWN PER DRAW. {core.meta.limitations[2]!.toUpperCase()}</p>
               <div className="sites-tags"><HonestyChip tag="SIMULATED" detail="500 SEEDED DRAWS" /><HonestyChip tag="SYNTHETIC" detail="DISRUPTIONS" /></div>
             </>
           ) : null}

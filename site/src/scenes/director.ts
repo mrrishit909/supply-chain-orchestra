@@ -13,7 +13,7 @@ import { getStore } from "../data/loader";
 import { NETWORK, SOLUTIONS } from "../data/artifacts";
 import { SCENES } from "../app/scenes";
 import { drawDock, drawNeededDisc, type Paint } from "../dock/draw";
-import { place, unionOf, BASE_TONS, type BarMeta, type Placed, type Union } from "../dock/layout";
+import { areaTo, place, unionOf, BASE_TONS, type BarMeta, type Placed, type Union } from "../dock/layout";
 import type { Plan } from "../model/plan";
 import type { Network, Solutions } from "../model/types";
 import { layout, type Cam, type Layout } from "./geometry";
@@ -256,6 +256,21 @@ function placeLabels(list: LabelSpec[]) {
 }
 
 let lastPaints: { d: DiscSpec; b: Blend; R: number }[] = [];
+/** Test hook: the area rule and the drawn key set of the discs painted in the last frame. */
+export function dockReport() {
+  return lastPaints.map(({ d, b, R }) => {
+    let top = 0, bottom = 0;
+    const keys: [string, number][] = [];
+    const t = d.B && d.mix >= 1 ? b.B!.tons : b.A.tons;
+    b.u.keys.forEach((m, i) => {
+      const a = areaTo(b.x1[i]!) - areaTo(b.x0[i]!);
+      if (m.half === 0) top += a; else bottom += a;
+      if (t[i]! > 0) keys.push([m.key, t[i]!]);
+    });
+    const plan = d.B && d.mix >= 1 ? d.B : d.A;
+    return { plan: plan.id, cx: d.cam.cx, cy: d.cam.cy, R, top, bottom, total: b.total, mix: d.mix, keys, status: plan.status, demandTons: plan.demandTons };
+  });
+}
 export interface DockPick { meta: BarMeta; tons: number; disc: number; plan: Plan; moving: boolean }
 /** The dock bar under a viewport point (x within its slot, y inside the chord); null on the seam, outside the disc or on a moving bar. */
 export function pickDock(px: number, py: number): DockPick | null {

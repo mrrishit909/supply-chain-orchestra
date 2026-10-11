@@ -77,7 +77,7 @@ export function S07Evidence({ def }: { def: SceneDef }) {
           const age = shown - k;
           if (motion && age < 0) return null;
           return (
-            <li key={k} className={`ev-pair ${motion ? "" : "is-flat"}`} data-age={Math.min(age, 4)} style={motion ? ({ ["--age" as string]: Math.min(age, 4) } as React.CSSProperties) : undefined} aria-current={age === 0 ? "true" : undefined}>
+            <li key={k} className={`ev-pair ${motion ? "" : "is-flat"}`} data-age={Math.min(age, 4)} style={motion ? ({ ["--age" as string]: Math.min(age, 4) } as React.CSSProperties) : undefined} aria-current={age === 0 ? "true" : undefined} aria-hidden={motion && age > 0 ? true : undefined}>
               <p className="ev-q">{r.q}</p>
               <div className="ev-a">
                 <p className="ev-a__text">{r.a}</p>

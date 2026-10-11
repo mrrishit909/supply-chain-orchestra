@@ -398,3 +398,41 @@ html[data-motion="off"] .scene-journey .hero-title { margin: 0 var(--margin); wi
 html[data-motion="off"] .s01, html[data-motion="off"] .journey-foot { padding: 0 var(--margin); display: flex; flex-direction: column; gap: 16px; opacity: 1 !important; }
 html[data-motion="off"] .s01-cards { opacity: 1; flex-wrap: wrap; }
 html[data-motion="off"] .s01-statement { opacity: 1 !important; }
+
+/* ---------- compact desktop (1024-1279 wide or up to 820 tall): a deliberate composition, not a squeeze (QA L2) ---------- */
+@media (min-width: 1024px) and (max-height: 820px), (min-width: 1024px) and (max-width: 1279px) {
+  .scene-statement { font-size: 46px; }
+  .scene--grid .stage-content { padding-top: 60px; row-gap: 8px; }
+  .scene--grid .stage-content { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); }
+  .sites-note { display: none; }
+  .ledger-dl dd { font-size: 15px; }
+  .words__line { font-size: 13px; }
+  .steps { font-size: 12px; }
+  .hero-title { font-size: 64px; width: 420px; }
+  .s01-statement { font-size: 46px; }
+  .desk-title { font-size: 34px; }
+  .desk { padding-top: 56px; }
+  .close-para { font-size: 34px; }
+}
+.note .chip, .story-card .chip, .ev-a .chip { max-width: 100%; white-space: normal; line-height: 1.25; }
+@media (min-width: 1024px) and (max-height: 820px), (min-width: 1024px) and (max-width: 1279px) {
+  .scene-panel .readout-line { font-size: 13px; }
+  .scene-panel { gap: 7px; }
+  .storm-ctl { gap: 6px; }
+}
+@media (min-width: 1024px) { .s01 { padding-top: 204px; } }
+@media (min-width: 1024px) and (max-height: 820px), (min-width: 1024px) and (max-width: 1279px) {
+  .compact-hide { display: none; }
+  .storm-note { font-size: 12px !important; line-height: 1.25; }
+  .s01 { padding-top: 150px; }
+}
+@media (min-width: 1024px) and (max-width: 1279px) { :root { --foot-h: 60px; } }
+
+/* ---------- phones: the panel scrolls inside the sticky stage when its content is taller than the free box (QA L11) ---------- */
+@media (max-width: 767px) {
+  .scene--grid .scene-kicker { display: none; }
+  .scene--grid .scene-statement { font-size: 28px; }
+  .scene--grid .scene-panel { max-height: 46dvh; overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; }
+  .steps li:not(.is-on) { display: none; }
+  .scene--storms .scene-panel { max-height: 50dvh; }
+}

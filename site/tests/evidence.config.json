@@ -1,0 +1,323 @@
+{
+ "_comment": "P07 Supply Chain Orchestra, task P07-FE-001. Sections are scene ids from src/app/scenes.ts; window.__sco.jumpTo(id,p) is the nav's instant-jump path. introFrames freeze the S00 clock (ms). Steps marked core run at every viewport; the rest only at fullViewports.",
+ "fullViewports": [
+  "1440x900",
+  "768x1024",
+  "390x844",
+  "1440x900-reduced",
+  "390x844-reduced"
+ ],
+ "introFrames": [
+  200,
+  600,
+  1000,
+  1800,
+  2600,
+  3400,
+  4400
+ ],
+ "scrollSteps": 110,
+ "scrollStepMs": 240,
+ "interactionSequences": [
+  {
+   "id": "s01",
+   "steps": [
+    {
+     "setup": "window.__sco.jumpTo('journey',0.3);",
+     "name": "p30",
+     "waitMs": 1500
+    },
+    {
+     "setup": "window.__sco.jumpTo('journey',0.78);",
+     "name": "p78-landing",
+     "waitMs": 1600,
+     "core": true
+    }
+   ]
+  },
+  {
+   "id": "s02",
+   "steps": [
+    {
+     "setup": "window.__sco.jumpTo('real',0.14);",
+     "name": "card1",
+     "waitMs": 1500,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.jumpTo('real',0.36);",
+     "name": "card2",
+     "waitMs": 1500
+    },
+    {
+     "setup": "window.__sco.jumpTo('real',0.58);",
+     "name": "card3",
+     "waitMs": 1500,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.jumpTo('real',0.8);",
+     "name": "card4",
+     "waitMs": 1500
+    },
+    {
+     "setup": "window.__sco.jumpTo('real',0.97);",
+     "name": "exit",
+     "waitMs": 1500
+    }
+   ]
+  },
+  {
+   "id": "s03a",
+   "steps": [
+    {
+     "setup": "window.__sco.jumpTo('sites',0.2);",
+     "name": "p20",
+     "waitMs": 1500
+    },
+    {
+     "setup": "window.__sco.jumpTo('sites',0.5);",
+     "name": "p50-landing",
+     "waitMs": 1800,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.jumpTo('sites',0.9);",
+     "name": "p90-k3",
+     "waitMs": 1500
+    },
+    {
+     "setup": "window.__sco.set.sites({k:2,relaxed:false});",
+     "name": "k2-infeasible",
+     "waitMs": 1600,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.set.sites({k:2,relaxed:true});",
+     "name": "k2-relaxed",
+     "waitMs": 1600
+    }
+   ]
+  },
+  {
+   "id": "s03b",
+   "steps": [
+    {
+     "setup": "window.__sco.jumpTo('limits',0.2);",
+     "name": "full-site",
+     "waitMs": 2500,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.jumpTo('limits',0.55);",
+     "name": "plant",
+     "waitMs": 1500
+    },
+    {
+     "setup": "window.__sco.jumpTo('limits',0.8);",
+     "name": "price",
+     "waitMs": 1500,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.set.limits({cap:1.05});",
+     "name": "cap105",
+     "waitMs": 1500
+    }
+   ]
+  },
+  {
+   "id": "s04",
+   "steps": [
+    {
+     "setup": "window.__sco.jumpTo('unfold',0.05);",
+     "name": "legacy-dock",
+     "waitMs": 1500,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.jumpTo('unfold',0.15);",
+     "name": "optimized-dock",
+     "waitMs": 1800
+    },
+    {
+     "setup": "window.__sco.jumpTo('unfold',0.36);",
+     "name": "mid-unfold",
+     "waitMs": 1500,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.jumpTo('unfold',0.62);",
+     "name": "map",
+     "waitMs": 1800,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.jumpTo('unfold',0.78);",
+     "name": "legacy-map",
+     "waitMs": 1500
+    },
+    {
+     "setup": "window.__sco.jumpTo('unfold',0.95);",
+     "name": "verdict",
+     "waitMs": 1500
+    }
+   ]
+  },
+  {
+   "id": "s05",
+   "steps": [
+    {
+     "setup": "window.__sco.jumpTo('break',0.12);",
+     "name": "supply-strict",
+     "waitMs": 1500,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.jumpTo('break',0.22);",
+     "name": "supply-relaxed",
+     "waitMs": 2500,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.jumpTo('break',0.45);",
+     "name": "capacity-relaxed",
+     "waitMs": 2500
+    },
+    {
+     "setup": "window.__sco.jumpTo('break',0.65);",
+     "name": "sites-relaxed",
+     "waitMs": 2500
+    },
+    {
+     "setup": "window.__sco.jumpTo('break',0.8);",
+     "name": "storm-legacy",
+     "waitMs": 2500,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.jumpTo('break',0.92);",
+     "name": "storm-optimized",
+     "waitMs": 2500
+    }
+   ]
+  },
+  {
+   "id": "s06",
+   "steps": [
+    {
+     "setup": "window.__sco.jumpTo('storms',0.2);",
+     "name": "early",
+     "waitMs": 1500
+    },
+    {
+     "setup": "window.__sco.jumpTo('storms',0.5);",
+     "name": "mid",
+     "waitMs": 1500,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.jumpTo('storms',0.78);",
+     "name": "tail",
+     "waitMs": 1500,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.jumpTo('storms',0.92);",
+     "name": "lose-one",
+     "waitMs": 1800,
+     "core": true
+    }
+   ]
+  },
+  {
+   "id": "s07",
+   "steps": [
+    {
+     "setup": "window.__sco.jumpTo('evidence',0.05);",
+     "name": "first",
+     "waitMs": 1500,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.jumpTo('evidence',0.5);",
+     "name": "fourth",
+     "waitMs": 1500
+    },
+    {
+     "setup": "window.__sco.jumpTo('evidence',0.95);",
+     "name": "last",
+     "waitMs": 1500,
+     "core": true
+    }
+   ]
+  },
+  {
+   "id": "desk",
+   "steps": [
+    {
+     "setup": "window.__sco.jumpTo('desk',0);",
+     "name": "initial",
+     "waitMs": 2500,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.deskChange({demand_scale:1.3});",
+     "name": "demand130",
+     "waitMs": 3500,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.deskChange({demand_scale:1.6,relax:false});",
+     "name": "demand160-infeasible",
+     "waitMs": 3500
+    },
+    {
+     "setup": "window.__sco.deskChange({relax:true});",
+     "name": "explained",
+     "waitMs": 3500,
+     "core": true
+    }
+   ]
+  },
+  {
+   "id": "s08",
+   "steps": [
+    {
+     "setup": "window.__sco.jumpTo('closing',0.2);",
+     "name": "p20",
+     "waitMs": 1500
+    },
+    {
+     "setup": "window.__sco.jumpTo('closing',0.5);",
+     "name": "p50-paragraph",
+     "waitMs": 1600,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.jumpTo('closing',0.72);",
+     "name": "p72-echo",
+     "waitMs": 900
+    },
+    {
+     "setup": "window.__sco.jumpTo('closing',0.76);",
+     "name": "p76-echo",
+     "waitMs": 3000,
+     "core": true
+    },
+    {
+     "setup": "window.__sco.jumpTo('closing',0.97);",
+     "name": "p97-links",
+     "waitMs": 2400,
+     "core": true
+    }
+   ]
+  }
+ ],
+ "heavyInteraction": {
+  "label": "S03a re-partitions and the S04 unfold, scroll-scrubbed (rapid, repeated across sites..unfold)",
+  "trigger": "const a=document.getElementById('sites'), b=document.getElementById('break'); const start=window.scrollY+a.getBoundingClientRect().top, end=window.scrollY+b.getBoundingClientRect().top; let dir=1; window.scrollTo(0,start); window.__heavyId=setInterval(()=>{window.scrollBy(0,dir*48); const y=window.scrollY; if(y>=end) dir=-1; if(y<=start) dir=1;},16);",
+  "stateCheck": "window.__sco.debug().scene + ':' + window.__sco.debug().frames",
+  "durationMs": 6000
+ }
+}
