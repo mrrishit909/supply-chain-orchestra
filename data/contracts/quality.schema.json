@@ -1,0 +1,163 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "additionalProperties": false,
+ "properties": {
+  "checks": {
+   "items": {
+    "additionalProperties": false,
+    "properties": {
+     "description": {
+      "type": "string"
+     },
+     "id": {
+      "type": "string"
+     },
+     "result": {
+      "enum": [
+       "PASS",
+       "FAIL"
+      ]
+     },
+     "value": {
+      "type": [
+       "number",
+       "string",
+       "boolean"
+      ]
+     }
+    },
+    "required": [
+     "id",
+     "description",
+     "result",
+     "value"
+    ],
+    "type": "object"
+   },
+   "minItems": 1,
+   "type": "array"
+  },
+  "generated_at": {
+   "type": "string"
+  },
+  "join_ledger": {
+   "additionalProperties": false,
+   "properties": {
+    "active_joined": {
+     "type": "integer"
+    },
+    "dropped_non_contiguous": {
+     "type": "integer"
+    },
+    "dropped_not_active_either_file": {
+     "type": "integer"
+    },
+    "dropped_zero_pop": {
+     "type": "integer"
+    },
+    "gazetteer_rows": {
+     "type": "integer"
+    },
+    "gazetteer_unmatched_by_funcstat": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "type": "object"
+    },
+    "gazetteer_unmatched_to_pep": {
+     "type": "integer"
+    },
+    "joined": {
+     "type": "integer"
+    },
+    "pep_geoid_unique": {
+     "type": "integer"
+    },
+    "pep_rows_all_sumlev": {
+     "type": "integer"
+    },
+    "pep_sumlev162_rows": {
+     "type": "integer"
+    },
+    "pep_unmatched_to_gazetteer": {
+     "type": "integer"
+    },
+    "usable_places": {
+     "type": "integer"
+    },
+    "usable_population_sum": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "gazetteer_rows",
+    "pep_rows_all_sumlev",
+    "pep_sumlev162_rows",
+    "pep_geoid_unique",
+    "pep_unmatched_to_gazetteer",
+    "gazetteer_unmatched_to_pep",
+    "gazetteer_unmatched_by_funcstat",
+    "joined",
+    "dropped_not_active_either_file",
+    "active_joined",
+    "dropped_non_contiguous",
+    "dropped_zero_pop",
+    "usable_places",
+    "usable_population_sum"
+   ],
+   "type": "object"
+  },
+  "schema_version": {
+   "const": "v1"
+  },
+  "selection": {
+   "additionalProperties": false,
+   "properties": {
+    "demand_nodes": {
+     "type": "integer"
+    },
+    "demand_population": {
+     "type": "integer"
+    },
+    "excluded_states": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "internal_point_note": {
+     "type": "string"
+    },
+    "share_of_usable_population": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "demand_nodes",
+    "demand_population",
+    "share_of_usable_population",
+    "excluded_states",
+    "internal_point_note"
+   ],
+   "type": "object"
+  },
+  "tags": {
+   "additionalProperties": {
+    "pattern": "^(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC)(/(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC))*$",
+    "type": "string"
+   },
+   "minProperties": 1,
+   "type": "object"
+  }
+ },
+ "required": [
+  "schema_version",
+  "generated_at",
+  "tags",
+  "join_ledger",
+  "selection",
+  "checks"
+ ],
+ "title": "Quality",
+ "type": "object"
+}

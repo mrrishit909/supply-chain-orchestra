@@ -1,0 +1,464 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "additionalProperties": false,
+ "properties": {
+  "config": {
+   "additionalProperties": false,
+   "properties": {
+    "demand_commodity_sd": {
+     "type": "number"
+    },
+    "demand_global_sd": {
+     "type": "number"
+    },
+    "demand_node_sd": {
+     "type": "number"
+    },
+    "draws": {
+     "type": "integer"
+    },
+    "lost_sales_usd_ton": {
+     "type": "number"
+    },
+    "note": {
+     "type": "string"
+    },
+    "p_lane_outage": {
+     "type": "number"
+    },
+    "p_regional_event": {
+     "type": "number"
+    },
+    "p_site_in_region": {
+     "type": "number"
+    },
+    "p_site_outage": {
+     "type": "number"
+    },
+    "regional_radius_mi": {
+     "type": "number"
+    },
+    "regional_surge": {
+     "type": "number"
+    },
+    "seed": {
+     "type": "integer"
+    },
+    "surge_radius_mi": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "draws",
+    "seed",
+    "p_site_outage",
+    "p_regional_event",
+    "regional_radius_mi",
+    "p_site_in_region",
+    "p_lane_outage",
+    "demand_global_sd",
+    "demand_commodity_sd",
+    "demand_node_sd",
+    "regional_surge",
+    "surge_radius_mi",
+    "lost_sales_usd_ton",
+    "note"
+   ],
+   "type": "object"
+  },
+  "designs": {
+   "items": {
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "type": "string"
+     },
+     "label": {
+      "type": "string"
+     },
+     "open_sites": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array"
+     },
+     "undisrupted_cost_usd": {
+      "type": "number"
+     },
+     "undisrupted_service_level": {
+      "type": "number"
+     }
+    },
+    "required": [
+     "id",
+     "label",
+     "open_sites",
+     "undisrupted_cost_usd",
+     "undisrupted_service_level"
+    ],
+    "type": "object"
+   },
+   "maxItems": 3,
+   "minItems": 2,
+   "type": "array"
+  },
+  "draws": {
+   "additionalProperties": false,
+   "properties": {
+    "demand_multiplier": {
+     "items": {
+      "type": "number"
+     },
+     "type": "array"
+    },
+    "lanes_down": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    },
+    "regional_event": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    },
+    "sites_down": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "sites_down",
+    "lanes_down",
+    "regional_event",
+    "demand_multiplier"
+   ],
+   "type": "object"
+  },
+  "generated_at": {
+   "type": "string"
+  },
+  "histograms": {
+   "additionalProperties": {
+    "additionalProperties": false,
+    "properties": {
+     "cost": {
+      "additionalProperties": false,
+      "properties": {
+       "counts": {
+        "items": {
+         "type": "integer"
+        },
+        "type": "array"
+       },
+       "edges": {
+        "items": {
+         "type": "number"
+        },
+        "type": "array"
+       }
+      },
+      "required": [
+       "edges",
+       "counts"
+      ],
+      "type": "object"
+     },
+     "service_level": {
+      "additionalProperties": false,
+      "properties": {
+       "counts": {
+        "items": {
+         "type": "integer"
+        },
+        "type": "array"
+       },
+       "edges": {
+        "items": {
+         "type": "number"
+        },
+        "type": "array"
+       }
+      },
+      "required": [
+       "edges",
+       "counts"
+      ],
+      "type": "object"
+     }
+    },
+    "required": [
+     "cost",
+     "service_level"
+    ],
+    "type": "object"
+   },
+   "type": "object"
+  },
+  "results": {
+   "additionalProperties": {
+    "additionalProperties": false,
+    "properties": {
+     "adjusted_cost_usd": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array"
+     },
+     "cost_usd": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array"
+     },
+     "service_level": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array"
+     }
+    },
+    "required": [
+     "cost_usd",
+     "service_level",
+     "adjusted_cost_usd"
+    ],
+    "type": "object"
+   },
+   "type": "object"
+  },
+  "schema_version": {
+   "const": "v1"
+  },
+  "site_criticality": {
+   "items": {
+    "additionalProperties": false,
+    "properties": {
+     "delta_cost_usd": {
+      "type": "number"
+     },
+     "service_level": {
+      "type": "number"
+     },
+     "site": {
+      "type": "integer"
+     },
+     "unmet_tons": {
+      "type": "number"
+     }
+    },
+    "required": [
+     "site",
+     "delta_cost_usd",
+     "service_level",
+     "unmet_tons"
+    ],
+    "type": "object"
+   },
+   "type": "array"
+  },
+  "storm_exemplar": {
+   "additionalProperties": false,
+   "properties": {
+    "closed_sites": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    },
+    "epicenter": {
+     "type": "string"
+    },
+    "radius_mi": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "epicenter",
+    "radius_mi",
+    "closed_sites"
+   ],
+   "type": "object"
+  },
+  "summary": {
+   "additionalProperties": {
+    "additionalProperties": false,
+    "properties": {
+     "adjusted_cost": {
+      "additionalProperties": false,
+      "properties": {
+       "cvar95": {
+        "type": "number"
+       },
+       "max": {
+        "type": "number"
+       },
+       "mean": {
+        "type": "number"
+       },
+       "min": {
+        "type": "number"
+       },
+       "p05": {
+        "type": "number"
+       },
+       "p50": {
+        "type": "number"
+       },
+       "p95": {
+        "type": "number"
+       },
+       "p99": {
+        "type": "number"
+       },
+       "sd": {
+        "type": "number"
+       }
+      },
+      "required": [
+       "mean",
+       "sd",
+       "p05",
+       "p50",
+       "p95",
+       "p99",
+       "cvar95",
+       "min",
+       "max"
+      ],
+      "type": "object"
+     },
+     "cost": {
+      "additionalProperties": false,
+      "properties": {
+       "cvar95": {
+        "type": "number"
+       },
+       "max": {
+        "type": "number"
+       },
+       "mean": {
+        "type": "number"
+       },
+       "min": {
+        "type": "number"
+       },
+       "p05": {
+        "type": "number"
+       },
+       "p50": {
+        "type": "number"
+       },
+       "p95": {
+        "type": "number"
+       },
+       "p99": {
+        "type": "number"
+       },
+       "sd": {
+        "type": "number"
+       }
+      },
+      "required": [
+       "mean",
+       "sd",
+       "p05",
+       "p50",
+       "p95",
+       "p99",
+       "cvar95",
+       "min",
+       "max"
+      ],
+      "type": "object"
+     },
+     "mean_regret_vs_undisrupted_usd": {
+      "type": "number"
+     },
+     "service_level": {
+      "additionalProperties": false,
+      "properties": {
+       "cvar95": {
+        "type": "number"
+       },
+       "max": {
+        "type": "number"
+       },
+       "mean": {
+        "type": "number"
+       },
+       "min": {
+        "type": "number"
+       },
+       "p05": {
+        "type": "number"
+       },
+       "p50": {
+        "type": "number"
+       },
+       "p95": {
+        "type": "number"
+       },
+       "p99": {
+        "type": "number"
+       },
+       "sd": {
+        "type": "number"
+       }
+      },
+      "required": [
+       "mean",
+       "sd",
+       "p05",
+       "p50",
+       "p95",
+       "p99",
+       "cvar95",
+       "min",
+       "max"
+      ],
+      "type": "object"
+     },
+     "share_full_service": {
+      "type": "number"
+     }
+    },
+    "required": [
+     "cost",
+     "service_level",
+     "adjusted_cost",
+     "share_full_service",
+     "mean_regret_vs_undisrupted_usd"
+    ],
+    "type": "object"
+   },
+   "type": "object"
+  },
+  "tags": {
+   "additionalProperties": {
+    "pattern": "^(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC)(/(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC))*$",
+    "type": "string"
+   },
+   "minProperties": 1,
+   "type": "object"
+  }
+ },
+ "required": [
+  "schema_version",
+  "generated_at",
+  "tags",
+  "config",
+  "designs",
+  "draws",
+  "results",
+  "summary",
+  "histograms",
+  "site_criticality",
+  "storm_exemplar"
+ ],
+ "title": "Robustness",
+ "type": "object"
+}

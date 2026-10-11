@@ -1,0 +1,162 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "additionalProperties": false,
+ "properties": {
+  "artifacts": {
+   "additionalProperties": false,
+   "properties": {
+    "files": {
+     "items": {
+      "type": "string"
+     },
+     "minItems": 1,
+     "type": "array"
+    }
+   },
+   "required": [
+    "files"
+   ],
+   "type": "object"
+  },
+  "attribution": {
+   "type": "string"
+  },
+  "generated_at": {
+   "type": "string"
+  },
+  "licence_note": {
+   "type": "string"
+  },
+  "limitations": {
+   "items": {
+    "type": "string"
+   },
+   "minItems": 1,
+   "type": "array"
+  },
+  "project": {
+   "type": "string"
+  },
+  "schema_version": {
+   "const": "v1"
+  },
+  "seed": {
+   "type": "integer"
+  },
+  "sizes": {
+   "additionalProperties": false,
+   "properties": {
+    "binaries": {
+     "type": "integer"
+    },
+    "candidate_sites": {
+     "type": "integer"
+    },
+    "columns": {
+     "type": "integer"
+    },
+    "commodities": {
+     "type": "integer"
+    },
+    "demand_nodes": {
+     "type": "integer"
+    },
+    "out_arcs": {
+     "type": "integer"
+    },
+    "plants": {
+     "type": "integer"
+    },
+    "rows": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "demand_nodes",
+    "candidate_sites",
+    "plants",
+    "commodities",
+    "out_arcs",
+    "columns",
+    "rows",
+    "binaries"
+   ],
+   "type": "object"
+  },
+  "sources": {
+   "items": {
+    "additionalProperties": false,
+    "properties": {
+     "bytes": {
+      "type": "integer"
+     },
+     "id": {
+      "type": "string"
+     },
+     "name": {
+      "type": "string"
+     },
+     "retrieved_at_utc": {
+      "type": "string"
+     },
+     "sha256": {
+      "type": "string"
+     },
+     "tag": {
+      "pattern": "^(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC)(/(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC))*$",
+      "type": "string"
+     },
+     "url": {
+      "type": "string"
+     },
+     "use": {
+      "type": "string"
+     },
+     "vintage": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "name",
+     "url",
+     "vintage",
+     "retrieved_at_utc",
+     "sha256",
+     "bytes",
+     "use",
+     "tag"
+    ],
+    "type": "object"
+   },
+   "type": "array"
+  },
+  "tagline": {
+   "type": "string"
+  },
+  "tags": {
+   "additionalProperties": {
+    "pattern": "^(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC)(/(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC))*$",
+    "type": "string"
+   },
+   "minProperties": 1,
+   "type": "object"
+  }
+ },
+ "required": [
+  "schema_version",
+  "generated_at",
+  "tags",
+  "project",
+  "tagline",
+  "seed",
+  "sources",
+  "attribution",
+  "licence_note",
+  "limitations",
+  "sizes",
+  "artifacts"
+ ],
+ "title": "Meta",
+ "type": "object"
+}

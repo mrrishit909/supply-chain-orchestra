@@ -1,0 +1,248 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "additionalProperties": false,
+ "properties": {
+  "generated_at": {
+   "type": "string"
+  },
+  "lp_text": {
+   "type": "string"
+  },
+  "lp_text_vector_id": {
+   "type": "string"
+  },
+  "note": {
+   "type": "string"
+  },
+  "parity_keys": {
+   "items": {
+    "type": "string"
+   },
+   "minItems": 3,
+   "type": "array"
+  },
+  "schema_version": {
+   "const": "v1"
+  },
+  "solver_options": {
+   "type": "object"
+  },
+  "tags": {
+   "additionalProperties": {
+    "pattern": "^(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC)(/(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC))*$",
+    "type": "string"
+   },
+   "minProperties": 1,
+   "type": "object"
+  },
+  "tolerance_abs_usd": {
+   "type": "number"
+  },
+  "tolerance_rel": {
+   "type": "number"
+  },
+  "vectors": {
+   "items": {
+    "additionalProperties": false,
+    "properties": {
+     "expected": {
+      "additionalProperties": false,
+      "properties": {
+       "components": {
+        "anyOf": [
+         {
+          "additionalProperties": false,
+          "properties": {
+           "fixed_usd": {
+            "type": "number"
+           },
+           "handling_usd": {
+            "type": "number"
+           },
+           "inbound_transport_usd": {
+            "type": "number"
+           },
+           "outbound_transport_usd": {
+            "type": "number"
+           },
+           "penalties_usd": {
+            "additionalProperties": false,
+            "properties": {
+             "capacity_overshoot": {
+              "type": "number"
+             },
+             "open_sites_excess": {
+              "type": "number"
+             },
+             "supply_overshoot": {
+              "type": "number"
+             },
+             "unmet_demand": {
+              "type": "number"
+             }
+            },
+            "required": [
+             "unmet_demand",
+             "capacity_overshoot",
+             "supply_overshoot",
+             "open_sites_excess"
+            ],
+            "type": "object"
+           }
+          },
+          "required": [
+           "fixed_usd",
+           "inbound_transport_usd",
+           "outbound_transport_usd",
+           "handling_usd",
+           "penalties_usd"
+          ],
+          "type": "object"
+         },
+         {
+          "type": "null"
+         }
+        ]
+       },
+       "objective_usd": {
+        "type": [
+         "number",
+         "null"
+        ]
+       },
+       "open_sites": {
+        "items": {
+         "type": "integer"
+        },
+        "type": "array"
+       },
+       "relaxed_groups": {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       "status": {
+        "enum": [
+         "Optimal",
+         "Infeasible"
+        ]
+       },
+       "unmet_tons": {
+        "type": [
+         "number",
+         "null"
+        ]
+       }
+      },
+      "required": [
+       "status",
+       "objective_usd",
+       "components",
+       "open_sites",
+       "unmet_tons",
+       "relaxed_groups"
+      ],
+      "type": "object"
+     },
+     "id": {
+      "type": "string"
+     },
+     "kind": {
+      "enum": [
+       "preset",
+       "random",
+       "infeasible",
+       "relaxed",
+       "closure"
+      ]
+     },
+     "lp_text_sha256": {
+      "type": "string"
+     },
+     "params": {
+      "additionalProperties": false,
+      "properties": {
+       "capacity_scale": {
+        "type": "number"
+       },
+       "closed_lanes": {
+        "items": {
+         "type": "integer"
+        },
+        "type": "array"
+       },
+       "closed_sites": {
+        "items": {
+         "type": "integer"
+        },
+        "type": "array"
+       },
+       "demand_scale": {
+        "type": "number"
+       },
+       "fixed_cost_scale": {
+        "type": "number"
+       },
+       "fixed_open": {
+        "items": {
+         "type": "integer"
+        },
+        "type": [
+         "array",
+         "null"
+        ]
+       },
+       "freight_scale": {
+        "type": "number"
+       },
+       "max_open_sites": {
+        "type": "integer"
+       },
+       "relax": {
+        "type": "boolean"
+       }
+      },
+      "required": [
+       "demand_scale",
+       "freight_scale",
+       "fixed_cost_scale",
+       "capacity_scale",
+       "max_open_sites",
+       "closed_sites",
+       "closed_lanes",
+       "fixed_open",
+       "relax"
+      ],
+      "type": "object"
+     }
+    },
+    "required": [
+     "id",
+     "kind",
+     "params",
+     "lp_text_sha256",
+     "expected"
+    ],
+    "type": "object"
+   },
+   "minItems": 1,
+   "type": "array"
+  }
+ },
+ "required": [
+  "schema_version",
+  "generated_at",
+  "tags",
+  "note",
+  "parity_keys",
+  "tolerance_rel",
+  "tolerance_abs_usd",
+  "solver_options",
+  "lp_text",
+  "lp_text_vector_id",
+  "vectors"
+ ],
+ "title": "Solver test vectors",
+ "type": "object"
+}

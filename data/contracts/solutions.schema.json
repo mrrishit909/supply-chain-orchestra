@@ -1,0 +1,448 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "additionalProperties": false,
+ "properties": {
+  "duals_note": {
+   "type": "string"
+  },
+  "flow_precision": {
+   "type": "string"
+  },
+  "generated_at": {
+   "type": "string"
+  },
+  "scenarios": {
+   "items": {
+    "additionalProperties": false,
+    "properties": {
+     "binding": {
+      "items": {
+       "additionalProperties": false,
+       "properties": {
+        "group": {
+         "enum": [
+          "capacity",
+          "plant_supply",
+          "open_sites"
+         ]
+        },
+        "id": {
+         "type": "string"
+        },
+        "shadow_usd_per_unit": {
+         "type": [
+          "number",
+          "null"
+         ]
+        },
+        "slack": {
+         "type": "number"
+        },
+        "unit": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "group",
+        "id",
+        "slack",
+        "shadow_usd_per_unit",
+        "unit"
+       ],
+       "type": "object"
+      },
+      "type": "array"
+     },
+     "components": {
+      "anyOf": [
+       {
+        "additionalProperties": false,
+        "properties": {
+         "fixed_usd": {
+          "type": "number"
+         },
+         "handling_usd": {
+          "type": "number"
+         },
+         "inbound_transport_usd": {
+          "type": "number"
+         },
+         "outbound_transport_usd": {
+          "type": "number"
+         },
+         "penalties_usd": {
+          "additionalProperties": false,
+          "properties": {
+           "capacity_overshoot": {
+            "type": "number"
+           },
+           "open_sites_excess": {
+            "type": "number"
+           },
+           "supply_overshoot": {
+            "type": "number"
+           },
+           "unmet_demand": {
+            "type": "number"
+           }
+          },
+          "required": [
+           "unmet_demand",
+           "capacity_overshoot",
+           "supply_overshoot",
+           "open_sites_excess"
+          ],
+          "type": "object"
+         }
+        },
+        "required": [
+         "fixed_usd",
+         "inbound_transport_usd",
+         "outbound_transport_usd",
+         "handling_usd",
+         "penalties_usd"
+        ],
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "demand_price_usd_ton": {
+      "items": {
+       "items": {
+        "type": "number"
+       },
+       "maxItems": 3,
+       "minItems": 3,
+       "type": "array"
+      },
+      "type": [
+       "array",
+       "null"
+      ]
+     },
+     "description": {
+      "type": "string"
+     },
+     "id": {
+      "type": "string"
+     },
+     "kind": {
+      "type": "string"
+     },
+     "label": {
+      "type": "string"
+     },
+     "lp_relaxation_bound_usd": {
+      "type": [
+       "number",
+       "null"
+      ]
+     },
+     "lp_text_sha256": {
+      "type": "string"
+     },
+     "mip_gap": {
+      "type": [
+       "number",
+       "null"
+      ]
+     },
+     "mip_nodes": {
+      "type": [
+       "integer",
+       "null"
+      ]
+     },
+     "objective_usd": {
+      "type": [
+       "number",
+       "null"
+      ]
+     },
+     "open_sites": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array"
+     },
+     "params": {
+      "additionalProperties": false,
+      "properties": {
+       "capacity_scale": {
+        "type": "number"
+       },
+       "closed_lanes": {
+        "items": {
+         "type": "integer"
+        },
+        "type": "array"
+       },
+       "closed_sites": {
+        "items": {
+         "type": "integer"
+        },
+        "type": "array"
+       },
+       "demand_scale": {
+        "type": "number"
+       },
+       "fixed_cost_scale": {
+        "type": "number"
+       },
+       "fixed_open": {
+        "items": {
+         "type": "integer"
+        },
+        "type": [
+         "array",
+         "null"
+        ]
+       },
+       "freight_scale": {
+        "type": "number"
+       },
+       "max_open_sites": {
+        "type": "integer"
+       },
+       "relax": {
+        "type": "boolean"
+       }
+      },
+      "required": [
+       "demand_scale",
+       "freight_scale",
+       "fixed_cost_scale",
+       "capacity_scale",
+       "max_open_sites",
+       "closed_sites",
+       "closed_lanes",
+       "fixed_open",
+       "relax"
+      ],
+      "type": "object"
+     },
+     "relaxation": {
+      "anyOf": [
+       {
+        "additionalProperties": false,
+        "properties": {
+         "capacity_overshoot": {
+          "items": {
+           "additionalProperties": false,
+           "properties": {
+            "pct_of_capacity": {
+             "type": "number"
+            },
+            "site": {
+             "type": "integer"
+            },
+            "units": {
+             "type": "number"
+            }
+           },
+           "required": [
+            "site",
+            "units",
+            "pct_of_capacity"
+           ],
+           "type": "object"
+          },
+          "type": "array"
+         },
+         "open_sites_excess": {
+          "type": "number"
+         },
+         "summary": {
+          "type": "string"
+         },
+         "supply_overshoot": {
+          "items": {
+           "additionalProperties": false,
+           "properties": {
+            "commodity": {
+             "type": "integer"
+            },
+            "plant": {
+             "type": "integer"
+            },
+            "tons": {
+             "type": "number"
+            }
+           },
+           "required": [
+            "plant",
+            "commodity",
+            "tons"
+           ],
+           "type": "object"
+          },
+          "type": "array"
+         },
+         "total_penalty_usd": {
+          "type": "number"
+         },
+         "unmet_demand": {
+          "items": {
+           "additionalProperties": false,
+           "properties": {
+            "commodity": {
+             "type": "integer"
+            },
+            "demand": {
+             "type": "integer"
+            },
+            "tons": {
+             "type": "number"
+            }
+           },
+           "required": [
+            "demand",
+            "commodity",
+            "tons"
+           ],
+           "type": "object"
+          },
+          "type": "array"
+         }
+        },
+        "required": [
+         "total_penalty_usd",
+         "unmet_demand",
+         "capacity_overshoot",
+         "supply_overshoot",
+         "open_sites_excess",
+         "summary"
+        ],
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "routes_in": {
+      "items": {
+       "items": {
+        "type": "number"
+       },
+       "maxItems": 4,
+       "minItems": 4,
+       "type": "array"
+      },
+      "type": "array"
+     },
+     "routes_out": {
+      "items": {
+       "items": {
+        "type": "number"
+       },
+       "maxItems": 3,
+       "minItems": 3,
+       "type": "array"
+      },
+      "type": "array"
+     },
+     "service_level": {
+      "type": [
+       "number",
+       "null"
+      ]
+     },
+     "site_use": {
+      "items": {
+       "additionalProperties": false,
+       "properties": {
+        "capacity_units": {
+         "type": "number"
+        },
+        "site": {
+         "type": "integer"
+        },
+        "units": {
+         "type": "number"
+        },
+        "utilization": {
+         "type": "number"
+        }
+       },
+       "required": [
+        "site",
+        "units",
+        "capacity_units",
+        "utilization"
+       ],
+       "type": "object"
+      },
+      "type": "array"
+     },
+     "status": {
+      "enum": [
+       "Optimal",
+       "Infeasible"
+      ]
+     },
+     "total_demand_tons": {
+      "type": "number"
+     },
+     "unmet_tons": {
+      "type": [
+       "number",
+       "null"
+      ]
+     }
+    },
+    "required": [
+     "id",
+     "label",
+     "description",
+     "kind",
+     "params",
+     "status",
+     "objective_usd",
+     "lp_text_sha256",
+     "components",
+     "open_sites",
+     "mip_gap",
+     "mip_nodes",
+     "lp_relaxation_bound_usd",
+     "service_level",
+     "unmet_tons",
+     "total_demand_tons",
+     "routes_out",
+     "routes_in",
+     "site_use",
+     "demand_price_usd_ton",
+     "binding",
+     "relaxation"
+    ],
+    "type": "object"
+   },
+   "minItems": 1,
+   "type": "array"
+  },
+  "schema_version": {
+   "const": "v1"
+  },
+  "tags": {
+   "additionalProperties": {
+    "pattern": "^(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC)(/(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC))*$",
+    "type": "string"
+   },
+   "minProperties": 1,
+   "type": "object"
+  }
+ },
+ "required": [
+  "schema_version",
+  "generated_at",
+  "tags",
+  "flow_precision",
+  "duals_note",
+  "scenarios"
+ ],
+ "title": "Solutions",
+ "type": "object"
+}

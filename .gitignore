@@ -1,10 +1,9 @@
 data/raw/
-data/interim/
 .venv/
 __pycache__/
+.pytest_cache/
 node_modules/
 site/dist/
 artifacts/evidence/recordings/
-*.part
 .DS_Store
-data/processed/
+data/manifests/runtime.json

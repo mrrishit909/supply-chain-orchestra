@@ -1,0 +1,415 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "additionalProperties": false,
+ "properties": {
+  "controls": {
+   "items": {
+    "additionalProperties": false,
+    "properties": {
+     "default": {},
+     "id": {
+      "type": "string"
+     },
+     "kind": {
+      "enum": [
+       "range",
+       "toggle",
+       "multiselect"
+      ]
+     },
+     "label": {
+      "type": "string"
+     },
+     "max": {
+      "type": [
+       "number",
+       "null"
+      ]
+     },
+     "min": {
+      "type": [
+       "number",
+       "null"
+      ]
+     },
+     "options": {
+      "type": [
+       "array",
+       "null"
+      ]
+     },
+     "param_path": {
+      "type": "string"
+     },
+     "step": {
+      "type": [
+       "number",
+       "null"
+      ]
+     },
+     "unit": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "label",
+     "unit",
+     "kind",
+     "default",
+     "param_path"
+    ],
+    "type": "object"
+   },
+   "minItems": 1,
+   "type": "array"
+  },
+  "defaults": {
+   "additionalProperties": false,
+   "properties": {
+    "capacity_scale": {
+     "type": "number"
+    },
+    "closed_lanes": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    },
+    "closed_sites": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    },
+    "demand_scale": {
+     "type": "number"
+    },
+    "fixed_cost_scale": {
+     "type": "number"
+    },
+    "fixed_open": {
+     "items": {
+      "type": "integer"
+     },
+     "type": [
+      "array",
+      "null"
+     ]
+    },
+    "freight_scale": {
+     "type": "number"
+    },
+    "max_open_sites": {
+     "type": "integer"
+    },
+    "relax": {
+     "type": "boolean"
+    }
+   },
+   "required": [
+    "demand_scale",
+    "freight_scale",
+    "fixed_cost_scale",
+    "capacity_scale",
+    "max_open_sites",
+    "closed_sites",
+    "closed_lanes",
+    "fixed_open",
+    "relax"
+   ],
+   "type": "object"
+  },
+  "formulation": {
+   "additionalProperties": false,
+   "properties": {
+    "constraints": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "objective": {
+     "type": "string"
+    },
+    "relaxation": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "summary": {
+     "type": "string"
+    },
+    "variables": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "summary",
+    "objective",
+    "variables",
+    "constraints",
+    "relaxation"
+   ],
+   "type": "object"
+  },
+  "generated_at": {
+   "type": "string"
+  },
+  "lp_format": {
+   "additionalProperties": false,
+   "properties": {
+    "column_order": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "names": {
+     "type": "string"
+    },
+    "note": {
+     "type": "string"
+    },
+    "number_format": {
+     "type": "string"
+    },
+    "rounding_rule": {
+     "type": "string"
+    },
+    "row_order": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "sections": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "rounding_rule",
+    "number_format",
+    "column_order",
+    "row_order",
+    "names",
+    "sections",
+    "note"
+   ],
+   "type": "object"
+  },
+  "penalties": {
+   "additionalProperties": false,
+   "properties": {
+    "capacity_usd_unit": {
+     "type": "number"
+    },
+    "note": {
+     "type": "string"
+    },
+    "open_sites_usd_site": {
+     "type": "number"
+    },
+    "supply_usd_ton": {
+     "type": "number"
+    },
+    "unmet_usd_ton": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "unmet_usd_ton",
+    "capacity_usd_unit",
+    "supply_usd_ton",
+    "open_sites_usd_site",
+    "note"
+   ],
+   "type": "object"
+  },
+  "presets": {
+   "items": {
+    "additionalProperties": false,
+    "properties": {
+     "description": {
+      "type": "string"
+     },
+     "id": {
+      "type": "string"
+     },
+     "kind": {
+      "enum": [
+       "design",
+       "stress",
+       "infeasible",
+       "relaxed"
+      ]
+     },
+     "label": {
+      "type": "string"
+     },
+     "params": {
+      "additionalProperties": false,
+      "properties": {
+       "capacity_scale": {
+        "type": "number"
+       },
+       "closed_lanes": {
+        "items": {
+         "type": "integer"
+        },
+        "type": "array"
+       },
+       "closed_sites": {
+        "items": {
+         "type": "integer"
+        },
+        "type": "array"
+       },
+       "demand_scale": {
+        "type": "number"
+       },
+       "fixed_cost_scale": {
+        "type": "number"
+       },
+       "fixed_open": {
+        "items": {
+         "type": "integer"
+        },
+        "type": [
+         "array",
+         "null"
+        ]
+       },
+       "freight_scale": {
+        "type": "number"
+       },
+       "max_open_sites": {
+        "type": "integer"
+       },
+       "relax": {
+        "type": "boolean"
+       }
+      },
+      "required": [
+       "demand_scale",
+       "freight_scale",
+       "fixed_cost_scale",
+       "capacity_scale",
+       "max_open_sites",
+       "closed_sites",
+       "closed_lanes",
+       "fixed_open",
+       "relax"
+      ],
+      "type": "object"
+     }
+    },
+    "required": [
+     "id",
+     "label",
+     "description",
+     "kind",
+     "params"
+    ],
+    "type": "object"
+   },
+   "minItems": 1,
+   "type": "array"
+  },
+  "schema_version": {
+   "const": "v1"
+  },
+  "sizes": {
+   "additionalProperties": false,
+   "properties": {
+    "binaries": {
+     "type": "integer"
+    },
+    "columns": {
+     "type": "integer"
+    },
+    "nonzeros": {
+     "type": "integer"
+    },
+    "rows": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "columns",
+    "rows",
+    "binaries",
+    "nonzeros"
+   ],
+   "type": "object"
+  },
+  "solver": {
+   "additionalProperties": false,
+   "properties": {
+    "browser_note": {
+     "type": "string"
+    },
+    "highs_browser": {
+     "type": "string"
+    },
+    "highs_python": {
+     "type": "string"
+    },
+    "options": {
+     "type": "object"
+    },
+    "status_strings": {
+     "additionalProperties": false,
+     "properties": {
+      "infeasible": {
+       "type": "string"
+      },
+      "optimal": {
+       "type": "string"
+      }
+     },
+     "required": [
+      "optimal",
+      "infeasible"
+     ],
+     "type": "object"
+    }
+   },
+   "required": [
+    "options",
+    "highs_python",
+    "highs_browser",
+    "status_strings",
+    "browser_note"
+   ],
+   "type": "object"
+  },
+  "tags": {
+   "additionalProperties": {
+    "pattern": "^(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC)(/(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC))*$",
+    "type": "string"
+   },
+   "minProperties": 1,
+   "type": "object"
+  }
+ },
+ "required": [
+  "schema_version",
+  "generated_at",
+  "tags",
+  "formulation",
+  "lp_format",
+  "solver",
+  "penalties",
+  "defaults",
+  "controls",
+  "presets",
+  "sizes"
+ ],
+ "title": "Model",
+ "type": "object"
+}

@@ -1,0 +1,344 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "additionalProperties": false,
+ "properties": {
+  "commodities": {
+   "items": {
+    "additionalProperties": false,
+    "properties": {
+     "capacity_units_per_ton": {
+      "type": "number"
+     },
+     "handling_usd_ton": {
+      "type": "number"
+     },
+     "id": {
+      "type": "string"
+     },
+     "label": {
+      "type": "string"
+     },
+     "rate_in_usd_ton_mi": {
+      "type": "number"
+     },
+     "rate_out_usd_ton_mi": {
+      "type": "number"
+     },
+     "tons_per_1000_pop": {
+      "type": "number"
+     }
+    },
+    "required": [
+     "id",
+     "label",
+     "tons_per_1000_pop",
+     "rate_in_usd_ton_mi",
+     "rate_out_usd_ton_mi",
+     "handling_usd_ton",
+     "capacity_units_per_ton"
+    ],
+    "type": "object"
+   },
+   "maxItems": 3,
+   "minItems": 3,
+   "type": "array"
+  },
+  "constants": {
+   "additionalProperties": false,
+   "properties": {
+    "capacity_headroom": {
+     "type": "number"
+    },
+    "circuity": {
+     "type": "number"
+    },
+    "earth_radius_mi": {
+     "type": "number"
+    },
+    "fixed_base_usd_yr": {
+     "type": "number"
+    },
+    "nearest_sites_per_demand_node": {
+     "type": "integer"
+    },
+    "noise_sd": {
+     "type": "number"
+    },
+    "plant_pool": {
+     "type": "integer"
+    },
+    "plant_shares": {
+     "items": {
+      "type": "number"
+     },
+     "type": "array"
+    },
+    "seed": {
+     "type": "integer"
+    },
+    "site_pool": {
+     "type": "integer"
+    },
+    "supply_headroom": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "circuity",
+    "earth_radius_mi",
+    "nearest_sites_per_demand_node",
+    "seed",
+    "noise_sd",
+    "capacity_headroom",
+    "supply_headroom",
+    "plant_shares",
+    "fixed_base_usd_yr",
+    "site_pool",
+    "plant_pool"
+   ],
+   "type": "object"
+  },
+  "demand_nodes": {
+   "items": {
+    "additionalProperties": false,
+    "properties": {
+     "demand_tons": {
+      "items": {
+       "type": "integer"
+      },
+      "maxItems": 3,
+      "minItems": 3,
+      "type": "array"
+     },
+     "geoid": {
+      "type": "string"
+     },
+     "id": {
+      "type": "string"
+     },
+     "lat": {
+      "type": "number"
+     },
+     "lon": {
+      "type": "number"
+     },
+     "name": {
+      "type": "string"
+     },
+     "pop2025": {
+      "type": "integer"
+     },
+     "state": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "geoid",
+     "name",
+     "state",
+     "lat",
+     "lon",
+     "pop2025",
+     "demand_tons"
+    ],
+    "type": "object"
+   },
+   "type": "array"
+  },
+  "generated_at": {
+   "type": "string"
+  },
+  "in_road_mi": {
+   "items": {
+    "items": {
+     "type": "number"
+    },
+    "type": "array"
+   },
+   "type": "array"
+  },
+  "out_arcs": {
+   "additionalProperties": false,
+   "properties": {
+    "demand": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    },
+    "road_mi": {
+     "items": {
+      "type": "number"
+     },
+     "type": "array"
+    },
+    "site": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array"
+    }
+   },
+   "required": [
+    "site",
+    "demand",
+    "road_mi"
+   ],
+   "type": "object"
+  },
+  "plants": {
+   "items": {
+    "additionalProperties": false,
+    "properties": {
+     "geoid": {
+      "type": "string"
+     },
+     "id": {
+      "type": "string"
+     },
+     "lat": {
+      "type": "number"
+     },
+     "lon": {
+      "type": "number"
+     },
+     "name": {
+      "type": "string"
+     },
+     "pop2025": {
+      "type": "integer"
+     },
+     "state": {
+      "type": "string"
+     },
+     "supply_tons": {
+      "items": {
+       "type": "integer"
+      },
+      "maxItems": 3,
+      "minItems": 3,
+      "type": "array"
+     }
+    },
+    "required": [
+     "id",
+     "geoid",
+     "name",
+     "state",
+     "lat",
+     "lon",
+     "pop2025",
+     "supply_tons"
+    ],
+    "type": "object"
+   },
+   "type": "array"
+  },
+  "schema_version": {
+   "const": "v1"
+  },
+  "sites": {
+   "items": {
+    "additionalProperties": false,
+    "properties": {
+     "capacity_units": {
+      "type": "integer"
+     },
+     "fixed_cost_usd_yr": {
+      "type": "number"
+     },
+     "geoid": {
+      "type": "string"
+     },
+     "id": {
+      "type": "string"
+     },
+     "land_index": {
+      "type": "number"
+     },
+     "lat": {
+      "type": "number"
+     },
+     "lon": {
+      "type": "number"
+     },
+     "name": {
+      "type": "string"
+     },
+     "pop2025": {
+      "type": "integer"
+     },
+     "state": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "geoid",
+     "name",
+     "state",
+     "lat",
+     "lon",
+     "pop2025",
+     "land_index",
+     "fixed_cost_usd_yr",
+     "capacity_units"
+    ],
+    "type": "object"
+   },
+   "type": "array"
+  },
+  "tags": {
+   "additionalProperties": {
+    "pattern": "^(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC)(/(OBSERVED|DERIVED|PREDICTED|SIMULATED|SYNTHETIC))*$",
+    "type": "string"
+   },
+   "minProperties": 1,
+   "type": "object"
+  },
+  "units": {
+   "additionalProperties": false,
+   "properties": {
+    "capacity": {
+     "type": "string"
+    },
+    "cost": {
+     "type": "string"
+    },
+    "demand": {
+     "type": "string"
+    },
+    "distance": {
+     "type": "string"
+    },
+    "population": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "distance",
+    "demand",
+    "capacity",
+    "cost",
+    "population"
+   ],
+   "type": "object"
+  }
+ },
+ "required": [
+  "schema_version",
+  "generated_at",
+  "tags",
+  "units",
+  "commodities",
+  "demand_nodes",
+  "sites",
+  "plants",
+  "out_arcs",
+  "in_road_mi",
+  "constants"
+ ],
+ "title": "Network",
+ "type": "object"
+}
