@@ -900,3 +900,22 @@ I fail the build on review if any of these is true:
 19. **The giant circular composition is missing or undersized:** a disc diameter under 1.2 x the frame height at the S00 end state or at S08 p 0.75 on any viewport; the disc fully inside the frame on D; or no part of the disc edge visible outside the scrims at G0 (D left arc, T bottom-right arc, M bottom arc).
 20. **A real entity is implied:** a company name, logo, a real warehouse address, or any claim that a rate, capacity or cost is observed.
 21. **Chart-library look (amendment P07-CD-002).** If any dock frame could be mistaken for a charting-library bar, stacked-bar or marimekko (mosaic) chart, it fails. Specifically: any bar filled with a flat swatch instead of its dock-lit gradient; any drawn separator line or bar outline between bars (gaps are hairline absences of light, 0.5px and 1.6px); the dock drawn as a line or band rather than a seam of no light; uniform saturation from seam to rim; an axis, baseline, tick or category label row along the dock or rim; or the rim bloom outside S00 and S08.
+
+---
+
+## 8. Implementation notes (P07-FE-001)
+
+Departures and decisions made while building from this blueprint. Each is bound to what the artifacts say or to a measured defect, not to taste.
+
+1. **Copy numbers follow the artifacts, not the design text.** Strict infeasibility is k = 1..4 (ED #37), parity is 41 vectors with a 58 ms median (`facts`), the capacity case reads `BY 154%` (DR-8 words), the S05 words are the artifact's `relaxation.words` verbatim, and `k_best` is computed from the sweep records.
+2. **Footer.** One fixed footer (attribution, seed, `meta.limitations[0]`, verbatim, uppercased) above the nav on D and T. On phones it is a `SOURCES, LIMITS AND ATTRIBUTION` disclosure, because eight lines of 11 px text do not fit a pinned 844 px stage next to the pill. The licence note is in S02 card 1, S07 answer 7 and S08.
+3. **Site labels carry a 78% black backing.** The white-hot seam makes bare 70% white labels fail the pixel-sampled contrast test (QA L16); the sketch's paint-order stroke could not be sampled.
+4. **S06 discs pool by site** (DR-6 publishes per-site totals only): one packaged-orange bar per surviving site plus the UNSERVED slot, captioned `PER-SITE TOTALS · CITIES AND COMMODITIES NOT SHOWN PER DRAW`. The tail view is two groups of 25 miniature discs inside the disc area.
+5. **STORM has no STRICT half.** The published storm scenarios exist only as relaxed records, so STRICT is disabled with that reason; HITS toggles LEGACY | OPTIMIZED instead of scroll-only.
+6. **S03b dual check.** The live toggle scales every site's capacity on a free MILP; the published `fd_check` fallback is S10 alone, +5%, open set fixed. The fallback is labelled as such and x1.10 is `NOT PUBLISHED` there.
+7. **Dock pan** is phone-only (M, G0 states S00 to S01 and S08): a horizontal drag on the dock band moves `cx`, two 44 px SVG arrow squares sit in the top-right corner (the arrows are not in the font subset, and the dock row is full of labels).
+8. **Phone panels scroll inside the sticky stage** when their content is taller than the free box (QA L11); the collision helper clips text boxes by scroll containers.
+9. **Glow canvases are redrawn on every frame whose geometry changed** at quarter resolution (about 0.3 ms), not once per settle, because the camera moves while they are visible.
+10. **UNSERVED** shows the 1 px dashed orange-red edge (3/3) on its empty top half in S05 and S06.
+11. **Status colour.** `RELAXED (ELASTIC)` uses the warning colour: a relaxed plan is a diagnosis, not a success.
+12. **Receding S07 cards are silhouettes**: only the newest exchange carries readable text (older text under a dimmed filter failed contrast), and receded cards are `aria-hidden` and `inert`.

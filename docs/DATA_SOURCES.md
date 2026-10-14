@@ -37,3 +37,8 @@ therefore **not used**; no FAF5 number appears in any artifact.
 
 ## Not used
 Open-Meteo, commercial geocoders, any road-routing service, Census API (no key needed or used).
+
+## Frontend assets (P07-FE-001)
+- **Fonts.** Newsreader (opsz axis kept, wght 400) and JetBrains Mono (wght 400), SIL OFL 1.1, from `@fontsource-variable`, subset to Latin plus the glyphs the page renders (`site/scripts/subset-fonts.py`, `src/data/glyphs.test.ts` scans every source string against the subset). 39.8 KB total; only the display face is preloaded.
+- **highs@1.15.3** (HiGHS-wasm, MIT) from npm, loaded in a module worker only from S03b or THE DESK.
+- **No external request** at runtime (tested): no CDN, no tiles, no analytics. The favicon and every figure are original.

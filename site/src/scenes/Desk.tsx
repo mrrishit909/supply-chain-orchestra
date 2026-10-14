@@ -46,6 +46,8 @@ export function Desk({ def }: { def: SceneDef }) {
   const net = core?.net;
   const model = ms.status === "ready" ? ms.data : null;
   const inDesk = active === def.id || active === "closing";
+  // the phone sheet closes on every chapter change
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setSheet(false); }, [active]);
   const deskReached = active ? sceneIndex(active) >= sceneIndex("limits") : false;
   const timer = useRef(0);

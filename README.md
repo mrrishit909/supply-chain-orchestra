@@ -4,8 +4,8 @@ A SYNTHETIC two-echelon supply network anchored to real US cities (Census popula
 multi-commodity-flow MILP. The Python reference (HiGHS via highspy) and the browser (HiGHS-wasm, highs@1.15.3) solve the identical LP text; infeasible
 scenarios are explained by an elastic constraint relaxation; a seeded Monte Carlo compares a legacy footprint with the optimized one under outages and demand shocks.
 
-This repository currently holds the data and engine phases (01-13): problem, sources, contracts, generator, optimization, validation and the versioned JSON artifacts in
-`site/public/data/`. The static site (React/Vite) is built from those artifacts in later phases.
+The repository holds the data and engine phases (01-13) and the static site in `site/` (React 18, Vite, TypeScript strict, Canvas2D, HiGHS-wasm in a worker). The site
+draws one invented year of freight as a disc cut by a dock (area = tons), re-solves the MILP in the browser on THE DESK and explains infeasibility by constraint relaxation.
 
 ## Run
 ```
@@ -21,3 +21,13 @@ cd tests/parity && npm ci && node build_lp.mjs --report ../../artifacts/evidence
 
 Data: U.S. Census Bureau PEP 2025 and Gazetteer 2026. This product uses Census Bureau data but is not endorsed or certified by the Census Bureau.
 Everything else (network, costs, outputs) is SYNTHETIC and says so in every artifact.
+
+## Site
+```
+cd site && npm ci
+npm run build && node tests/serve.mjs      # production preview on http://localhost:4371/supply-chain-orchestra/
+npm test                                    # Vitest incl. LP parity of all 41 vectors (hash + HiGHS-wasm objective)
+npx playwright test --workers 1             # e2e gate: QA_LESSONS L1-L22, solver states, RETRY for every artifact
+node tests/evidence-harness.mjs --base-url http://localhost:4371/supply-chain-orchestra/
+```
+Honesty tags: network and costs SYNTHETIC, solver outputs SIMULATED, Census places OBSERVED, hauls and shadow prices DERIVED.

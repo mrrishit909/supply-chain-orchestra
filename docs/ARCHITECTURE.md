@@ -12,3 +12,21 @@ data/raw (gitignored)  --ingest-->  clean.load_places  -->  network.build_networ
 - **Operational states for the browser solve** (contract for the site): initial (no solve run, preset shown, tagged `PRECOMPUTED · PYTHON HiGHS`), loading (worker + wasm), ready (`SOLVED IN BROWSER · HiGHS`), infeasible (status `Infeasible`, offer the elastic relaxation which sets `relax = true` and re-solves), time limit / error (fall back to the preset with the same params if there is one, else show error with retry), reset (default params). Solve status strings are pinned: `Optimal`, `Infeasible`.
 - **Determinism**: sorted-key compact JSON, `generated_at` = first Census retrieval time from the manifest, seeded numpy generators, HiGHS `threads 1`, `random_seed 0`; a test re-runs the whole publish step and compares bytes.
 - **Resource use**: peak resident memory 282 MB (measured with /usr/bin/time -l on the publish step), one HiGHS thread; full pipeline about 15 to 20 s after the one-time 8.7 MB download.
+
+## Frontend (site/, task P07-FE-001)
+Vite + React 18 + TypeScript strict + Tailwind v4 (tokens only) + Lenis; one `requestAnimationFrame` loop (`src/motion/loop.ts`). Base path `/supply-chain-orchestra/`.
+
+```
+src/model/    types + guards, lp.ts (port of tests/parity/build_lp.mjs), plan.ts (Plan = routes + open set + status + relaxation;
+              journeys/hero DR-4, words DR-8, components, binding), solve.ts (HiGHS call + decode), storms.ts (S06 draws)
+src/dock/     layout.ts (half-disc area function and its inverse; canonical key order; placement), draw.ts (Canvas2D painter)
+src/map/      project.ts (Albers, great circle), unfold.ts (25-point centrelines, strands, map base)
+src/scenes/   director.ts (one fixed canvas + two quarter-resolution glow canvases), frames-*.ts (one builder per scene),
+              S0x components (DOM), Slot.tsx (measured disc slots), geometry.ts (G0 table + slots)
+src/state/    solver.ts (module worker client), desk.ts, scenes.ts (small external stores)
+src/workers/  solver.worker.ts (highs@1.15.3, byte-progress load, latest wins)
+```
+- **Geometry.** G0 (the giant disc of S00 and S08) is a table per composition class; every other state is the measured box of the scene's own `.disc-slot`, so CSS owns the composition (desktop, compact 1024-1279 or up to 820 tall, tablet, phone flow).
+- **Area rule.** A bar's slot `[x0, x1]` carries its tons as exact area: `tons = (A(x1) - A(x0)) * 2T / pi`, `A(x) = (x sqrt(1-x^2) + asin x) / 2 + pi/4`. All 14 sites by longitude, then plant or city by longitude, then commodity: absent keys have zero width, so two placements over one union blend slot edge by slot edge and stay gapless.
+- **Solver.** `buildLp` runs on the main thread (hash, text); the worker only runs HiGHS. Columns are mapped back by name. Duals come from a second LP with the open set fixed (`fixed_open`, Binary section dropped), only after an optimal non-relaxed solve.
+- **Honesty.** Network and costs SYNTHETIC, solver outputs SIMULATED, places OBSERVED, hauls and duals DERIVED; chips are text, never colour alone.

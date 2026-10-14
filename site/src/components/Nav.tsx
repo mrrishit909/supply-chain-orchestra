@@ -29,6 +29,8 @@ export function Nav({ items, active, onJump, introPlaying, onSkip, onReplay, spe
   const placed = useRef(false);
   const pillRef = useRef<HTMLButtonElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  // closes the menu pill on every chapter change (also once on mount, which the specimen relies on)
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setOpen(false); }, [active]);
   const activeLabel = items.find((i) => i.id === active)?.label ?? items[0]?.label ?? "MENU";
 
